@@ -4,8 +4,8 @@
 #include "Funciones.h" // Para usar funciones auxiliares como color y gotoxy
 #include <iostream>
 
-#define WIDTH 80
-#define HEIGHT 25
+#define WIDTH 100
+#define HEIGHT 30
 #define ESC 27
 #define UP 72
 #define DOWN 80

@@ -5,14 +5,119 @@
 #include "Enemigo.h"
 #include "Mundo.h"
 #include <vector>
+#include <map>
+#include <string>
 
 class Juego
 {
 private:
     Personaje personaje;
     Mundo mundo;
-    std::vector<Enemigo> enemigos;
+    vector<Enemigo> enemigos;
     bool gameOver;
+    map<string, int> inventario; // Inventario de recursos
+    vector<pair<int, int>> recursosPosiciones; // Posiciones de los recursos
+    vector<string> recursosTipos; // Tipos de recursos
+
+    void inicializarRecursos()
+    {
+        if (mundo.getMundoActual() == 2)
+        {
+            recursosPosiciones.clear();
+            recursosTipos.clear();
+
+            // Generar 10 recursos en posiciones aleatorias
+            vector<string> tipos = {"IA", "ES", "RB", "BD"};
+            for (int i = 0; i < 8; ++i)
+            {
+                int x = generarAleatorio(3, WIDTH - 10); // Evitar bordes
+                int y = generarAleatorio(1, HEIGHT - 10);
+                recursosPosiciones.emplace_back(x, y);
+                recursosTipos.push_back(tipos[i % tipos.size()]); // Ciclar entre los tipos
+            }
+        }
+    }
+
+    // Dibuja los recursos en el mundo 2
+    void dibujarRecursos()
+    {
+        if (mundo.getMundoActual() == 2)
+        {
+            for (size_t i = 0; i < recursosPosiciones.size(); ++i)
+            {
+                gotoxy(recursosPosiciones[i].first, recursosPosiciones[i].second);
+                cout << recursosTipos[i];
+            }
+        }
+    }
+
+    // Detecta colisiones con los recursos
+    void detectarColisionesRecursos()
+    {
+        for (size_t i = 0; i < recursosPosiciones.size(); ++i)
+        {
+            // Verificar si el recurso está dentro del área del personaje
+            if (personaje.getX() < recursosPosiciones[i].first + 1 &&
+                personaje.getX() + personaje.getAncho() > recursosPosiciones[i].first &&
+                personaje.getY() < recursosPosiciones[i].second + 1 &&
+                personaje.getY() + personaje.getAlto() > recursosPosiciones[i].second)
+            {
+                // Borrar visualmente el recurso del mapa
+                gotoxy(recursosPosiciones[i].first, recursosPosiciones[i].second);
+                cout << ' ';
+
+                // Incrementar el recurso en el inventario
+                inventario[recursosTipos[i]]++;
+
+                // Eliminar el recurso de las listas
+                recursosPosiciones.erase(recursosPosiciones.begin() + i);
+                recursosTipos.erase(recursosTipos.begin() + i);
+
+                break; // Salir del bucle después de recoger un recurso
+            }
+        }
+    }
+
+    // Detecta colisiones entre los enemigos y los recursos
+    void detectarColisionesEnemigosRecursos()
+    {
+        for (size_t i = 0; i < recursosPosiciones.size(); ++i)
+        {
+            for (const auto& enemigo : enemigos)
+            {
+                // Verificar si el enemigo está dentro del área del recurso
+                if (enemigo.getX() < recursosPosiciones[i].first + 1 &&
+                    enemigo.getX() + enemigo.getAncho() > recursosPosiciones[i].first &&
+                    enemigo.getY() < recursosPosiciones[i].second + 1 &&
+                    enemigo.getY() + enemigo.getAlto() > recursosPosiciones[i].second)
+                {
+                    // Borrar visualmente el recurso del mapa
+                    gotoxy(recursosPosiciones[i].first, recursosPosiciones[i].second);
+                    cout << ' ';
+
+                    // Eliminar el recurso de las listas
+                    recursosPosiciones.erase(recursosPosiciones.begin() + i);
+                    recursosTipos.erase(recursosTipos.begin() + i);
+
+                    i--; // Ajustar el índice después de eliminar un recurso
+                    break; // Salir del bucle interno
+                }
+            }
+        }
+    }
+
+    // Muestra el inventario debajo de las vidas
+    void mostrarInventario() const
+    {
+        int yOffset = 2; // Desplazamiento debajo de las vidas
+        int i = 0;
+        for (const auto& recurso : inventario)
+        {
+            gotoxy(WIDTH + 5, yOffset + i);
+            cout << recurso.first << ": " << recurso.second;
+            i++;
+        }
+    }
 
     // Detecta colisiones entre el personaje y los enemigos
     void detectarColisiones()
@@ -52,10 +157,17 @@ public:
     Juego()
         : personaje(WIDTH / 2, HEIGHT / 2), gameOver(false)
     {
+        // Inicializar inventario
+        inventario["IA"] = 0;
+        inventario["ES"] = 0;
+        inventario["RB"] = 0;
+        inventario["BD"] = 0;
+
         // Agregar enemigos iniciales
-        enemigos.emplace_back(10, 5);
-        // enemigos.emplace_back(30, 10);
-        // enemigos.emplace_back(50, 15);
+        enemigos.emplace_back(25, 5);
+        enemigos.emplace_back(25, 20);
+        enemigos.emplace_back(70, 5);
+        enemigos.emplace_back(70, 20);
     }
 
     // Inicializa el juego
@@ -65,6 +177,12 @@ public:
         system("cls");
         mundo.dibujar();
         personaje.dibujar();
+
+        if (mundo.getMundoActual() == 2)
+        {
+            inicializarRecursos();
+            dibujarRecursos();
+        }
 
         // Dibujar enemigos si el mundo actual es el 2 o el 3
         if (mundo.getMundoActual() == 2 || mundo.getMundoActual() == 3)
@@ -80,7 +198,7 @@ public:
     void mostrarVidas() const
     {
         gotoxy(WIDTH + 5, 0); // Posiciona el texto en el borde derecho
-        std::cout << "VIDAS: " << personaje.getVidas();
+        cout << "VIDAS: " << personaje.getVidas();
     }
 
     // Ejecuta el bucle principal del juego
@@ -107,6 +225,12 @@ public:
                     actualizarPosicionPersonaje(mundoActual, nuevoMundo);
                     mundoActual = nuevoMundo;
 
+                    if (mundoActual == 2)
+                    {
+                        inicializarRecursos();
+                        dibujarRecursos();
+                    }
+
                     // Dibujar enemigos si el nuevo mundo es el 2 o el 3
                     if (mundoActual == 2 || mundoActual == 3)
                     {
@@ -123,11 +247,18 @@ public:
             {
                 actualizarEnemigos();
                 detectarColisiones();
+                detectarColisionesEnemigosRecursos(); // Llamar a la nueva función
+            }
+
+            if (mundoActual == 2)
+            {
+                detectarColisionesRecursos();
             }
 
             // Actualizar estado del personaje
             personaje.actualizarInvulnerabilidad();
             mostrarVidas();
+            mostrarInventario();
             Sleep(50);
         }
     }
