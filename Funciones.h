@@ -7,11 +7,12 @@
 
 #include <iostream> // Para usar las funciones de entrada y salida
 #include <windows.h> // Para usar las funciones de la consola
-#include <conio.h> // Para usar la funcion _kbhit()
-#include <ctime> // Para usar la funcion time()
-#include <cstdio> // Para usar la funcion _getch()
-#include <cstdlib> // Para usar la funcion exit()
-#include <chrono> // Para medir el tiempo de ejecucion
+#include <conio.h> // Para usar la función _kbhit()
+#include <ctime> // Para usar la función time()
+#include <cstdlib> // Para usar la función exit()
+#include <chrono> // Para medir el tiempo de ejecución
+#include <vector> // Para usar el contenedor vector
+#include <string> // Para usar la clase string
 
 using namespace std; // Para usar el espacio de nombres estondar
 using namespace System; // Para usar el espacio de nombres de C++/CLI
@@ -26,6 +27,7 @@ void ocultarCursor()
     SetConsoleCursorInfo(consoleHandle, &info);
 }
 
+// Muestra el cursor de la consola
 void mostrarCursor()
 {
     HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -42,7 +44,7 @@ void color(int color)
     SetConsoleTextAttribute(consoleHandle, color);
 }
 
-// Mueve el cursor a la posicion (x, y) en la consola
+// Mueve el cursor a la posición (x, y) en la consola
 void gotoxy(int x, int y)
 {
     COORD coord;
@@ -51,7 +53,7 @@ void gotoxy(int x, int y)
     SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
 }
 
-// Generar un numero aleatorio entre min y max
+// Genera un número aleatorio entre min y max
 int generarAleatorio(int min, int max)
 {
     return rand() % (max - min + 1) + min;
@@ -60,14 +62,13 @@ int generarAleatorio(int min, int max)
 // Espera a que el usuario presione la tecla ESCAPE
 void esperarTecla()
 {
-    cout << endl << "Presione <ESCAPE> para volver al menu principal" << endl;
-    char tecla; // Variable para almacenar la tecla presionada
+    std::cout << "\nPresione <ESCAPE> para volver al menu principal\n";
+    char tecla;
     do
     {
-        tecla = _getch(); // Leer la tecla presionada
-    }
-    while (tecla != 27); // Repetir hasta que la tecla presionada sea ESCAPE
+        tecla = _getch();
+    } while (tecla != 27);
     system("cls");
 }
 
-#endif //FUNCIONES_H
+#endif // FUNCIONES_H

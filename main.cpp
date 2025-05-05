@@ -13,6 +13,6 @@ int main()
     juego.buclePrincipal();
 
     // Finalizar el programa
-    std::cout << "Juego terminado. ¡Gracias por jugar!" << std::endl;
+    std::cout << "Juego terminado. Gracias por jugar!" << std::endl;
     return 0;
 }

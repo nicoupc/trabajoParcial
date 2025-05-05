@@ -19,14 +19,21 @@ private:
     {
         for (const auto& enemigo : enemigos)
         {
-            // Verifica si las áreas del personaje y el enemigo se superponen
             if (personaje.getX() < enemigo.getX() + enemigo.getAncho() &&
                 personaje.getX() + personaje.getAncho() > enemigo.getX() &&
                 personaje.getY() < enemigo.getY() + enemigo.getAlto() &&
                 personaje.getY() + personaje.getAlto() > enemigo.getY())
             {
-                gameOver = true; // Termina el juego si hay colisión
-                std::cout << "\n¡Colisión detectada! Fin del juego." << std::endl;
+                if (!personaje.estaInvulnerable()) // Verifica si no es invulnerable
+                {
+                    personaje.restarVida();
+                    personaje.activarInvulnerabilidad(30); // Activa invulnerabilidad por 30 ciclos
+
+                    if (personaje.getVidas() == 0)
+                    {
+                        gameOver = true;
+                    }
+                }
                 break;
             }
         }
@@ -58,10 +65,22 @@ public:
         system("cls");
         mundo.dibujar();
         personaje.dibujar();
-        for (const auto& enemigo : enemigos)
+
+        // Dibujar enemigos si el mundo actual es el 2 o el 3
+        if (mundo.getMundoActual() == 2 || mundo.getMundoActual() == 3)
         {
-            enemigo.dibujar();
+            for (const auto& enemigo : enemigos)
+            {
+                enemigo.dibujar();
+            }
         }
+    }
+
+    // Muestra el número de vidas en la parte derecha de la pantalla
+    void mostrarVidas() const
+    {
+        gotoxy(WIDTH + 5, 0); // Posiciona el texto en el borde derecho
+        std::cout << "VIDAS: " << personaje.getVidas();
     }
 
     // Ejecuta el bucle principal del juego
@@ -71,44 +90,66 @@ public:
 
         while (!gameOver)
         {
+            // Manejar entrada del usuario
             if (_kbhit())
             {
                 char tecla = _getch();
                 manejarEntrada(tecla);
             }
 
+            // Manejar transición entre mundos
             if (!mundo.estaDentroDemundo(personaje.getX(), personaje.getY()))
             {
                 int nuevoMundo = mundo.manejarTransicion(personaje.getX(), personaje.getY());
                 if (nuevoMundo != mundoActual)
                 {
                     mundo.cambiarMundo(nuevoMundo);
-
-                    // Ajustar la posición del personaje según la transición
-                    if (mundoActual == 1 && nuevoMundo == 2)
-                    {
-                        personaje.setPosicionInicial(WIDTH - 7, personaje.getY()); // Mantiene la posición Y
-                    }
-                    else if (mundoActual == 2 && nuevoMundo == 1)
-                    {
-                        personaje.setPosicionInicial(4, personaje.getY()); // Mantiene la posición Y
-                    }
-                    else if (mundoActual == 1 && nuevoMundo == 3)
-                    {
-                        personaje.setPosicionInicial(4, personaje.getY()); // Mantiene la posición Y
-                    }
-                    else if (mundoActual == 3 && nuevoMundo == 1)
-                    {
-                        personaje.setPosicionInicial(WIDTH - 7, personaje.getY()); // Mantiene la posición Y
-                    }
-
+                    actualizarPosicionPersonaje(mundoActual, nuevoMundo);
                     mundoActual = nuevoMundo;
+
+                    // Dibujar enemigos si el nuevo mundo es el 2 o el 3
+                    if (mundoActual == 2 || mundoActual == 3)
+                    {
+                        for (const auto& enemigo : enemigos)
+                        {
+                            enemigo.dibujar();
+                        }
+                    }
                 }
             }
 
-            actualizarEnemigos();
-            detectarColisiones();
+            // Actualizar enemigos y detectar colisiones si el mundo es el 2 o el 3
+            if (mundoActual == 2 || mundoActual == 3)
+            {
+                actualizarEnemigos();
+                detectarColisiones();
+            }
+
+            // Actualizar estado del personaje
+            personaje.actualizarInvulnerabilidad();
+            mostrarVidas();
             Sleep(50);
+        }
+    }
+
+    // Actualiza la posición del personaje al cambiar de mundo
+    void actualizarPosicionPersonaje(int mundoAnterior, int nuevoMundo)
+    {
+        if (mundoAnterior == 1 && nuevoMundo == 2)
+        {
+            personaje.setPosicionInicial(WIDTH - 7, personaje.getY());
+        }
+        else if (mundoAnterior == 2 && nuevoMundo == 1)
+        {
+            personaje.setPosicionInicial(4, personaje.getY());
+        }
+        else if (mundoAnterior == 1 && nuevoMundo == 3)
+        {
+            personaje.setPosicionInicial(4, personaje.getY());
+        }
+        else if (mundoAnterior == 3 && nuevoMundo == 1)
+        {
+            personaje.setPosicionInicial(WIDTH - 7, personaje.getY());
         }
     }
 

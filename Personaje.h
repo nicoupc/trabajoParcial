@@ -19,9 +19,12 @@ class Personaje
 {
 private:
     int x, y;
+    int vidas = 3; // Atributo para las vidas del personaje
     const char vacio;
     static constexpr int LIMITE_X = WIDTH;
     static constexpr int LIMITE_Y = HEIGHT;
+    bool invulnerable = false; // Estado de invulnerabilidad
+    int tiempoInvulnerable = 0; // Contador para invulnerabilidad
 
     // Matriz que representa el personaje
     const int personaje[4][4] = {
@@ -82,6 +85,43 @@ public:
     int getAlto() const
     {
         return 4; // Alto de la matriz del personaje
+    }
+
+    // Método para restar una vida
+    void restarVida()
+    {
+        if (vidas > 0)
+        {
+            vidas--;
+        }
+    }
+
+    int getVidas() const
+    {
+        return vidas;
+    }
+
+    void activarInvulnerabilidad(int duracion)
+    {
+        invulnerable = true;
+        tiempoInvulnerable = duracion;
+    }
+
+    void actualizarInvulnerabilidad()
+    {
+        if (invulnerable && tiempoInvulnerable > 0)
+        {
+            tiempoInvulnerable--;
+            if (tiempoInvulnerable == 0)
+            {
+                invulnerable = false;
+            }
+        }
+    }
+
+    bool estaInvulnerable() const
+    {
+        return invulnerable;
     }
 
     // Establece una nueva posición inicial para el personaje

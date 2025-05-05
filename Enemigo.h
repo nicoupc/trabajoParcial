@@ -7,9 +7,9 @@
 class Enemigo
 {
 private:
-    int x, y;
-    static constexpr int LIMITE_X = WIDTH;
-    static constexpr int LIMITE_Y = HEIGHT;
+    int x, y; // Coordenadas del enemigo
+    static constexpr int LIMITE_X = WIDTH; // Límite horizontal
+    static constexpr int LIMITE_Y = HEIGHT; // Límite vertical
 
     // Matriz que representa el enemigo
     const int enemigo[4][4] = {
@@ -42,6 +42,7 @@ private:
     }
 
 public:
+    // Constructor que inicializa las coordenadas del enemigo
     Enemigo(int startX, int startY)
         : x(startX), y(startY)
     {
@@ -56,7 +57,7 @@ public:
             for (int j = 0; j < 4; ++j)
             {
                 gotoxy(x + j, y + i); // Posiciona el cursor
-                int colorValor = obtenerColor(enemigo[i][j]);
+                int colorValor = obtenerColor(enemigo[i][j]); // Obtiene el color correspondiente
                 color(colorValor); // Cambia el color usando la función de Funciones.h
                 std::cout << CUBO; // Dibuja el carácter CUBO
             }
@@ -71,7 +72,7 @@ public:
         {
             for (int j = 0; j < 4; ++j)
             {
-                gotoxy(x + j, y + i);
+                gotoxy(x + j, y + i); // Posiciona el cursor
                 std::cout << ' '; // Borra con un espacio vacío
             }
         }
@@ -80,19 +81,19 @@ public:
     // Mueve el enemigo aleatoriamente
     void moverAleatorio()
     {
-        borrar();
-        int dx = generarAleatorio(-1, 1);
-        int dy = generarAleatorio(-1, 1);
-        x += dx;
-        y += dy;
-        validarLimites();
-        dibujar();
+        borrar(); // Borra el enemigo de su posición actual
+        int dx = generarAleatorio(-1, 1); // Genera un desplazamiento horizontal aleatorio
+        int dy = generarAleatorio(-1, 1); // Genera un desplazamiento vertical aleatorio
+        x += dx; // Actualiza la posición horizontal
+        y += dy; // Actualiza la posición vertical
+        validarLimites(); // Asegura que las coordenadas estén dentro de los límites
+        dibujar(); // Dibuja el enemigo en su nueva posición
     }
 
     // Detecta si colisiona con el personaje
     bool colisionaCon(int personajeX, int personajeY) const
     {
-        return x == personajeX && y == personajeY;
+        return x == personajeX && y == personajeY; // Verifica si las coordenadas coinciden
     }
 
     // Obtiene el ancho del enemigo
@@ -110,13 +111,13 @@ public:
     // Obtiene la posición X del enemigo
     int getX() const
     {
-        return x;
+        return x; // Coordenada X
     }
 
     // Obtiene la posición Y del enemigo
     int getY() const
     {
-        return y;
+        return y; // Coordenada Y
     }
 };
 
