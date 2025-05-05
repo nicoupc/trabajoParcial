@@ -47,8 +47,8 @@ public:
     {
         // Agregar enemigos iniciales
         enemigos.emplace_back(10, 5);
-        enemigos.emplace_back(30, 10);
-        enemigos.emplace_back(50, 15);
+        // enemigos.emplace_back(30, 10);
+        // enemigos.emplace_back(50, 15);
     }
 
     // Inicializa el juego
@@ -67,6 +67,8 @@ public:
     // Ejecuta el bucle principal del juego
     void buclePrincipal()
     {
+        int mundoActual = mundo.getMundoActual();
+
         while (!gameOver)
         {
             if (_kbhit())
@@ -75,20 +77,38 @@ public:
                 manejarEntrada(tecla);
             }
 
-            // Verificar si el personaje está fuera de los límites
             if (!mundo.estaDentroDemundo(personaje.getX(), personaje.getY()))
             {
                 int nuevoMundo = mundo.manejarTransicion(personaje.getX(), personaje.getY());
-                if (nuevoMundo != mundo.manejarTransicion(personaje.getX(), personaje.getY()))
+                if (nuevoMundo != mundoActual)
                 {
                     mundo.cambiarMundo(nuevoMundo);
-                    personaje.setPosicionInicial(WIDTH / 2, HEIGHT / 2); // Reubica al personaje
+
+                    // Ajustar la posición del personaje según la transición
+                    if (mundoActual == 1 && nuevoMundo == 2)
+                    {
+                        personaje.setPosicionInicial(WIDTH - 7, personaje.getY()); // Mantiene la posición Y
+                    }
+                    else if (mundoActual == 2 && nuevoMundo == 1)
+                    {
+                        personaje.setPosicionInicial(4, personaje.getY()); // Mantiene la posición Y
+                    }
+                    else if (mundoActual == 1 && nuevoMundo == 3)
+                    {
+                        personaje.setPosicionInicial(4, personaje.getY()); // Mantiene la posición Y
+                    }
+                    else if (mundoActual == 3 && nuevoMundo == 1)
+                    {
+                        personaje.setPosicionInicial(WIDTH - 7, personaje.getY()); // Mantiene la posición Y
+                    }
+
+                    mundoActual = nuevoMundo;
                 }
             }
 
             actualizarEnemigos();
             detectarColisiones();
-            Sleep(50); // Controla la velocidad del juego
+            Sleep(50);
         }
     }
 

@@ -14,16 +14,16 @@ private:
         for (int i = 0; i < HEIGHT; ++i)
         {
             gotoxy(0, i);
-            std::cout << '|';
+            cout << '#';
             gotoxy(WIDTH - 1, i);
-            std::cout << '|';
+            cout << '#';
         }
         for (int i = 0; i < WIDTH; ++i)
         {
             gotoxy(i, 0);
-            std::cout << '-';
+            cout << '#';
             gotoxy(i, HEIGHT - 1);
-            std::cout << '-';
+            cout << '#';
         }
     }
 
@@ -32,42 +32,48 @@ private:
     {
         for (int i = 0; i < HEIGHT; ++i)
         {
-            gotoxy(5, i);
-            std::cout << '|';
-            gotoxy(WIDTH - 6, i);
-            std::cout << '|';
+            gotoxy(0, i);
+            cout << '@';
+            gotoxy(WIDTH - 1, i);
+            cout << '@';
         }
-        for (int i = 5; i < WIDTH - 5; ++i)
+        for (int i = 0; i < WIDTH; ++i)
         {
-            gotoxy(i, 2);
-            std::cout << '-';
-            gotoxy(i, HEIGHT - 3);
-            std::cout << '-';
+            gotoxy(i, 0);
+            cout << '@';
+            gotoxy(i, HEIGHT - 1);
+            cout << '@';
         }
     }
 
     // Dibuja los límites del mundo 3
     void dibujarLimitesMundo3() const
     {
-        for (int i = 2; i < HEIGHT - 2; ++i)
+        for (int i = 0; i < HEIGHT; ++i)
         {
-            gotoxy(10, i);
-            std::cout << '|';
-            gotoxy(WIDTH - 11, i);
-            std::cout << '|';
+            gotoxy(0, i);
+            cout << '*';
+            gotoxy(WIDTH - 1, i);
+            cout << '*';
         }
-        for (int i = 10; i < WIDTH - 10; ++i)
+        for (int i = 0; i < WIDTH; ++i)
         {
-            gotoxy(i, 4);
-            std::cout << '-';
-            gotoxy(i, HEIGHT - 5);
-            std::cout << '-';
+            gotoxy(i, 0);
+            cout << '*';
+            gotoxy(i, HEIGHT - 1);
+            cout << '*';
         }
     }
 
 public:
     Mundo(int mundoInicial = 1) : mundoActual(mundoInicial)
     {
+    }
+
+    // Devuelve el mundo actual
+    int getMundoActual() const
+    {
+        return mundoActual;
     }
 
     // Cambia al mundo especificado
@@ -106,11 +112,11 @@ public:
         switch (mundoActual)
         {
         case 1:
-            return x > 0 && x < WIDTH - 1 && y > 0 && y < HEIGHT - 1;
+            return x > 2 && x < WIDTH - 5;
         case 2:
-            return x > 5 && x < WIDTH - 6 && y > 2 && y < HEIGHT - 3;
+            return x > 2 && x < WIDTH - 5;
         case 3:
-            return x > 10 && x < WIDTH - 11 && y > 4 && y < HEIGHT - 5;
+            return x > 2 && x < WIDTH - 5;
         default:
             return false;
         }
@@ -119,10 +125,16 @@ public:
     // Maneja la transición entre mundos
     int manejarTransicion(int x, int y) const
     {
-        if (mundoActual == 1 && x >= WIDTH - 1) return 2; // Transición al mundo 2
-        if (mundoActual == 2 && x <= 5) return 1; // Transición al mundo 1
-        if (mundoActual == 2 && x >= WIDTH - 6) return 3; // Transición al mundo 3
-        if (mundoActual == 3 && x <= 10) return 2; // Transición al mundo 2
+        if (x <= 2) // Límite izquierdo
+        {
+            if (mundoActual == 1) return 2; // Del mundo 1 al 2
+            if (mundoActual == 3) return 1; // Del mundo 3 al 1
+        }
+        else if (x >= WIDTH - 5) // Límite derecho
+        {
+            if (mundoActual == 1) return 3; // Del mundo 1 al 3
+            if (mundoActual == 2) return 1; // Del mundo 2 al 1
+        }
         return mundoActual; // No hay transición
     }
 };

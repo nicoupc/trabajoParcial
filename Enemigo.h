@@ -35,10 +35,10 @@ private:
     // Valida que las coordenadas estén dentro de los límites
     void validarLimites()
     {
-        if (x < 0) x = 0;
-        if (x >= LIMITE_X) x = LIMITE_X - 1;
-        if (y < 0) y = 0;
-        if (y >= LIMITE_Y) y = LIMITE_Y - 1;
+        if (x < 1) x = 1;
+        if (x >= LIMITE_X - 5) x = LIMITE_X - 5;
+        if (y < 1) y = 1;
+        if (y >= LIMITE_Y - 5) y = LIMITE_Y - 5;
     }
 
 public:
