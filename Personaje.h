@@ -5,7 +5,7 @@
 #include <iostream>
 
 #define WIDTH 100
-#define HEIGHT 30
+#define HEIGHT 35
 #define ESC 27
 #define UP 72
 #define DOWN 80

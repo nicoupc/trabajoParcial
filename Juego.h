@@ -18,6 +18,7 @@ private:
     map<string, int> inventario; // Inventario de recursos
     vector<pair<int, int>> recursosPosiciones; // Posiciones de los recursos
     vector<string> recursosTipos; // Tipos de recursos
+    vector<bool> casillasUsadas; // Vector para almacenar el estado de las casillas
 
     void inicializarRecursosTech()
     {
@@ -228,6 +229,96 @@ private:
         cout << "etica (h): " << inventario.at("h");
     }
 
+    void dibujarCuadradoYCasillas() const
+    {
+        int xInicio = 10, yInicio = 3;
+        int ancho = 25, alto = 8;
+
+        // Dibujar el cuadrado vacío
+        for (int x = xInicio; x < xInicio + ancho; ++x)
+        {
+            gotoxy(x, yInicio);
+            cout << "-";
+            gotoxy(x, yInicio + alto - 1);
+            cout << "-";
+        }
+        for (int y = yInicio + 1; y < yInicio + alto - 1; ++y)
+        {
+            gotoxy(xInicio, y);
+            cout << "|";
+            gotoxy(xInicio + ancho - 1, y);
+            cout << "|";
+        }
+
+        // Dibujar las casillas con recursos iniciales o [*] si ya fueron usadas
+        int casillasX = xInicio + 5, casillasY = yInicio + alto + 1;
+        vector<string> recursosIniciales = {"[RB]", "[IA]", "[e ]"};
+        for (int i = 0; i < 3; ++i)
+        {
+            gotoxy(casillasX + i * 5, casillasY);
+            if (casillasUsadas[i])
+            {
+                cout << "[* ]"; // Dibujar casilla usada
+            }
+            else
+            {
+                cout << recursosIniciales[i]; // Dibujar recurso inicial
+            }
+        }
+    }
+
+    void manejarDepositoRecursos()
+    {
+        int casillasX = 15, casillasY = 12; // Coordenadas iniciales de las casillas
+        vector<string> recursosCasillas = {"RB", "IA", "e"}; // Recursos iniciales en las casillas
+
+        for (int i = 0; i < 3; ++i)
+        {
+            // Detectar si el personaje está cerca de una casilla
+            if (abs(personaje.getX() - (casillasX + i * 5)) <= 1 &&
+                abs(personaje.getY() - casillasY) <= 1)
+            {
+                string recurso = recursosCasillas[i];
+                if (recurso != "*" && inventario[recurso] > 0 && !casillasUsadas[i])
+                {
+                    // Descontar el recurso del inventario
+                    inventario[recurso]--;
+
+                    // Marcar la casilla como usada
+                    casillasUsadas[i] = true;
+                }
+            }
+        }
+    }
+
+    void detectarColisionesCuadradoYCasillas()
+    {
+        int xInicio = 10, yInicio = 3;
+        int ancho = 25, alto = 8;
+        int casillasX = 15, casillasY = 12;
+
+        // Bloquear el paso sobre el cuadrado
+        if (personaje.getX() + personaje.getAncho() > xInicio &&
+            personaje.getX() < xInicio + ancho &&
+            personaje.getY() + personaje.getAlto() > yInicio &&
+            personaje.getY() < yInicio + alto)
+        {
+            personaje.mover(-1, 0); // Evitar que atraviese el cuadrado
+        }
+
+        // Bloquear el paso sobre las casillas
+        for (int i = 0; i < 3; ++i)
+        {
+            if (personaje.getX() + personaje.getAncho() > casillasX + i * 5 &&
+                personaje.getX() < casillasX + i * 5 + 3 &&
+                personaje.getY() + personaje.getAlto() > casillasY &&
+                personaje.getY() < casillasY + 1)
+            {
+                personaje.mover(-1, 0); // Evitar que atraviese las casillas
+            }
+        }
+    }
+
 public:
     Juego()
         : personaje(WIDTH / 2, HEIGHT / 2), gameOver(false)
@@ -243,6 +334,9 @@ public:
         inventario["h"] = 0;
         inventario["t"] = 0;
         inventario["c"] = 0;
+
+        // Inicializar estados de las casillas
+        casillasUsadas = {false, false, false};
 
         // Agregar enemigos iniciales
         enemigos.emplace_back(25, 5);
@@ -351,6 +445,14 @@ public:
             if (mundoActual == 3)
             {
                 detectarColisionesRecursosMundo3();
+            }
+
+            // Mostrar y manejar el cuadrado y casillas solo en el mundo 1
+            if (mundoActual == 1)
+            {
+                dibujarCuadradoYCasillas();
+                manejarDepositoRecursos();
+                detectarColisionesCuadradoYCasillas();
             }
 
             // Actualizar estado del personaje
