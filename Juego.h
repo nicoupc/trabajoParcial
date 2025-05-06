@@ -7,6 +7,8 @@
 #include <vector>
 #include <map>
 #include <string>
+#include <utility> // Para usar std::pair
+#include <algorithm> // Para usar std::all_of
 
 class Juego
 {
@@ -232,23 +234,7 @@ private:
     void dibujarCuadradoYCasillas() const
     {
         int xInicio = 10, yInicio = 3;
-        int ancho = 25, alto = 8;
-
-        // Dibujar el cuadrado vacío
-        for (int x = xInicio; x < xInicio + ancho; ++x)
-        {
-            gotoxy(x, yInicio);
-            cout << "-";
-            gotoxy(x, yInicio + alto - 1);
-            cout << "-";
-        }
-        for (int y = yInicio + 1; y < yInicio + alto - 1; ++y)
-        {
-            gotoxy(xInicio, y);
-            cout << "|";
-            gotoxy(xInicio + ancho - 1, y);
-            cout << "|";
-        }
+        int ancho = 23, alto = 8;
 
         // Dibujar las casillas con recursos iniciales o [*] si ya fueron usadas
         int casillasX = xInicio + 5, casillasY = yInicio + alto + 1;
@@ -263,6 +249,51 @@ private:
             else
             {
                 cout << recursosIniciales[i]; // Dibujar recurso inicial
+            }
+        }
+
+
+        // Verificar si todas las casillas están usadas
+        bool todasUsadas = std::all_of(casillasUsadas.begin(), casillasUsadas.end(), [](bool usada) { return usada; });
+
+        if (todasUsadas)
+        {
+            gotoxy(11, 2);
+            cout << "\"ROBOT  HUMANITARIO\"";
+            // Dibujar el personaje ASCII
+            gotoxy(xInicio, yInicio);
+            cout << " _(\\    |@@|           ";
+            gotoxy(xInicio, yInicio + 1);
+            cout << "(__/\\__ \\--/ __        ";
+            gotoxy(xInicio, yInicio + 2);
+            cout << "   \\___|----|  |   __  ";
+            gotoxy(xInicio, yInicio + 3);
+            cout << "       \\ }{ /\\ )_ / _\\ ";
+            gotoxy(xInicio, yInicio + 4);
+            cout << "       /\\__/\\ \\__O (__ ";
+            gotoxy(xInicio, yInicio + 5);
+            cout << "      (--/\\--)    \\__/ ";
+            gotoxy(xInicio, yInicio + 6);
+            cout << "      _)(  )(_         ";
+            gotoxy(xInicio, yInicio + 7);
+            cout << "     `---''---`        ";
+        }
+        else
+        {
+            // Dibujar el cuadrado vacío
+            for (int x = xInicio; x < xInicio + ancho; ++x)
+            {
+                gotoxy(x, yInicio);
+                cout << "-";
+                gotoxy(x, yInicio + alto - 1);
+                cout << "-";
+            }
+            for (int y = yInicio + 1; y < yInicio + alto - 1; ++y)
+            {
+                gotoxy(xInicio, y);
+                cout << "|";
+                gotoxy(xInicio + ancho - 1, y);
+                cout << "|";
             }
         }
     }
