@@ -22,7 +22,8 @@ private:
     map<string, int> inventario; // Inventario de recursos
     vector<pair<int, int>> recursosPosiciones; // Posiciones de los recursos
     vector<string> recursosTipos; // Tipos de recursos
-    vector<bool> casillasUsadas; // Vector para almacenar el estado de las casillas
+    vector<bool> casillasUsadasRobot; // Para las casillas del robot
+    vector<bool> casillasUsadasHospital; // Para las casillas del hospital
     Aliado aliado; // Objeto aliado
     Aliado aliado2; // Objeto aliado 2
 
@@ -384,7 +385,7 @@ private:
         cout << "etica (h): " << inventario.at("h");
     }
 
-    void dibujarCuadradoYCasillas() const
+    void dibujarCuadradoYCasillasRobot() const
     {
         int xInicio = 10, yInicio = 3;
         int ancho = 23, alto = 8;
@@ -395,7 +396,7 @@ private:
         for (int i = 0; i < 3; ++i)
         {
             gotoxy(casillasX + i * 5, casillasY);
-            if (casillasUsadas[i])
+            if (casillasUsadasRobot[i])
             {
                 cout << "[* ]"; // Dibujar casilla usada
             }
@@ -405,9 +406,9 @@ private:
             }
         }
 
-
         // Verificar si todas las casillas están usadas
-        bool todasUsadas = std::all_of(casillasUsadas.begin(), casillasUsadas.end(), [](bool usada) { return usada; });
+        bool todasUsadas = std::all_of(casillasUsadasRobot.begin(), casillasUsadasRobot.end(),
+                                       [](bool usada) { return usada; });
 
         if (todasUsadas)
         {
@@ -451,7 +452,7 @@ private:
         }
     }
 
-    void manejarDepositoRecursos()
+    void manejarDepositoRecursosRobot()
     {
         int casillasX = 15, casillasY = 12; // Coordenadas iniciales de las casillas
         vector<string> recursosCasillas = {"RB", "IA", "e"}; // Recursos iniciales en las casillas
@@ -463,23 +464,142 @@ private:
                 abs(personaje.getY() - casillasY) <= 1)
             {
                 string recurso = recursosCasillas[i];
-                if (recurso != "*" && inventario[recurso] > 0 && !casillasUsadas[i])
+                if (recurso != "*" && inventario[recurso] > 0 && !casillasUsadasRobot[i])
                 {
                     // Descontar el recurso del inventario
                     inventario[recurso]--;
 
                     // Marcar la casilla como usada
-                    casillasUsadas[i] = true;
+                    casillasUsadasRobot[i] = true;
                 }
             }
         }
     }
 
-    void detectarColisionesCuadradoYCasillas()
+    void detectarColisionesCuadradoYCasillasRobot()
     {
         int xInicio = 10, yInicio = 3;
         int ancho = 25, alto = 8;
         int casillasX = 15, casillasY = 12;
+
+        // Bloquear el paso sobre el cuadrado
+        if (personaje.getX() + personaje.getAncho() > xInicio &&
+            personaje.getX() < xInicio + ancho &&
+            personaje.getY() + personaje.getAlto() > yInicio &&
+            personaje.getY() < yInicio + alto)
+        {
+            personaje.mover(-1, 0); // Evitar que atraviese el cuadrado
+        }
+
+        // Bloquear el paso sobre las casillas
+        for (int i = 0; i < 3; ++i)
+        {
+            if (personaje.getX() + personaje.getAncho() > casillasX + i * 5 &&
+                personaje.getX() < casillasX + i * 5 + 3 &&
+                personaje.getY() + personaje.getAlto() > casillasY &&
+                personaje.getY() < casillasY + 1)
+            {
+                personaje.mover(-1, 0); // Evitar que atraviese las casillas
+            }
+        }
+    }
+
+    void dibujarCuadroYCasillasHospital() const
+    {
+        int xInicio = 60, yInicio = 3;
+        int ancho = 23, alto = 8;
+
+        // Dibujar las casillas con recursos iniciales o [*] si ya fueron usadas
+        int casillasX = xInicio + 5, casillasY = yInicio + alto + 1;
+        vector<string> recursosIniciales = {"[IA]", "[e ]", "[t ]"};
+        for (int i = 0; i < 3; ++i)
+        {
+            gotoxy(casillasX + i * 5, casillasY);
+            if (casillasUsadasHospital[i])
+            {
+                cout << "[* ]"; // Dibujar casilla usada
+            }
+            else
+            {
+                cout << recursosIniciales[i]; // Dibujar recurso inicial
+            }
+        }
+
+        // Verificar si todas las casillas están usadas
+        bool todasUsadas = std::all_of(casillasUsadasHospital.begin(), casillasUsadasHospital.end(),
+                                       [](bool usada) { return usada; });
+
+        if (todasUsadas)
+        {
+            gotoxy(65, 2);
+            cout << "\"HOSPITAL TECNOLOGICO\"";
+            // Dibujar el arte ASCII del hospital
+            gotoxy(xInicio, yInicio);
+            cout << "      ___________________";
+            gotoxy(xInicio, yInicio + 1);
+            cout << "     |        _| |_     |";
+            gotoxy(xInicio, yInicio + 2);
+            cout << "     |       |_   _|    |";
+            gotoxy(xInicio, yInicio + 3);
+            cout << " ____|_________|_|______|";
+            gotoxy(xInicio, yInicio + 4);
+            cout << "|               ________|";
+            gotoxy(xInicio, yInicio + 5);
+            cout << "|   __          |-------|";
+            gotoxy(xInicio, yInicio + 6);
+            cout << "|  |  |         |       |";
+            gotoxy(xInicio, yInicio + 7);
+            cout << "|__|  |_________|_______|";
+        }
+        else
+        {
+            // Dibujar el cuadrado vacío
+            for (int x = xInicio; x < xInicio + ancho; ++x)
+            {
+                gotoxy(x, yInicio);
+                cout << "-";
+                gotoxy(x, yInicio + alto - 1);
+                cout << "-";
+            }
+            for (int y = yInicio + 1; y < yInicio + alto - 1; ++y)
+            {
+                gotoxy(xInicio, y);
+                cout << "|";
+                gotoxy(xInicio + ancho - 1, y);
+                cout << "|";
+            }
+        }
+    }
+
+    void manejarDepositoRecursosHospital()
+    {
+        int casillasX = 72, casillasY = 12; // Coordenadas iniciales de las casillas
+        vector<string> recursosCasillas = {"IA", "e", "t"}; // Recursos iniciales en las casillas
+
+        for (int i = 0; i < 3; ++i)
+        {
+            // Detectar si el personaje está cerca de una casilla
+            if (abs(personaje.getX() - (casillasX + i * 5)) <= 1 &&
+                abs(personaje.getY() - casillasY) <= 1)
+            {
+                string recurso = recursosCasillas[i];
+                if (recurso != "*" && inventario[recurso] > 0 && !casillasUsadasHospital[i])
+                {
+                    // Descontar el recurso del inventario
+                    inventario[recurso]--;
+
+                    // Marcar la casilla como usada
+                    casillasUsadasHospital[i] = true;
+                }
+            }
+        }
+    }
+
+    void detectarColisionesCuadroYCasillasHospital()
+    {
+        int xInicio = 60, yInicio = 3;
+        int ancho = 25, alto = 8;
+        int casillasX = 65, casillasY = 12;
 
         // Bloquear el paso sobre el cuadrado
         if (personaje.getX() + personaje.getAncho() > xInicio &&
@@ -604,7 +724,10 @@ public:
         inventario["c"] = 0;
 
         // Inicializar estados de las casillas
-        casillasUsadas = {false, false, false};
+        casillasUsadasRobot = {false, false, false};
+        // casillasUsadasRobot = {true, true, true}; // Para pruebas
+        casillasUsadasHospital = {false, false, false};
+        // casillasUsadasHospital = {true, true, true}; // Para pruebas
 
         // Agregar enemigos iniciales
         enemigos.emplace_back(25, 5);
@@ -723,9 +846,12 @@ public:
             // Mostrar y manejar el cuadrado y casillas solo en el mundo 1
             if (mundoActual == 1)
             {
-                dibujarCuadradoYCasillas();
-                manejarDepositoRecursos();
-                detectarColisionesCuadradoYCasillas();
+                dibujarCuadradoYCasillasRobot();
+                manejarDepositoRecursosRobot();
+                detectarColisionesCuadradoYCasillasRobot();
+                dibujarCuadroYCasillasHospital();
+                manejarDepositoRecursosHospital();
+                detectarColisionesCuadroYCasillasHospital();
             }
 
             // Actualizar estado del personaje
