@@ -26,6 +26,38 @@ private:
     Aliado aliado; // Objeto aliado
     Aliado aliado2; // Objeto aliado 2
 
+    // Verifica si una posición está ocupada por otro recurso
+    bool posicionOcupada(int x, int y, const vector<pair<int, int>>& posiciones, int ancho = 4, int alto = 4)
+    {
+        // Verificar si la posición se superpone con otros recursos
+        for (const auto& pos : posiciones)
+        {
+            if (x < pos.first + ancho && x + ancho > pos.first &&
+                y < pos.second + alto && y + alto > pos.second)
+            {
+                return true; // La posición está ocupada
+            }
+        }
+
+        // Verificar si la posición se superpone con el aliado
+        if (x < aliado.getX() + aliado.getAncho() && x + ancho > aliado.getX() &&
+            y < aliado.getY() + aliado.getAlto() && y + alto > aliado.getY())
+        {
+            return true; // La posición está ocupada por el aliado
+        }
+
+        // Verificar si la posición se superpone con el aliado2
+        if (aliado2.estaVisible() && // Solo verificar si el aliado2 está visible
+            x < aliado2.getX() + aliado2.getAncho() && x + ancho > aliado2.getX() &&
+            y < aliado2.getY() + aliado2.getAlto() && y + alto > aliado2.getY())
+        {
+            return true; // La posición está ocupada por el aliado2
+        }
+
+        return false; // La posición está libre
+    }
+
+    // Modificar la generación de recursos
     void inicializarRecursosTech()
     {
         if (mundo.getMundoActual() == 2)
@@ -33,12 +65,17 @@ private:
             recursosPosiciones.clear();
             recursosTipos.clear();
 
-            // Generar 10 recursos en posiciones aleatorias
             vector<string> tipos = {"IA", "ES", "RB", "BD"};
             for (int i = 0; i < 8; ++i)
             {
-                int x = generarAleatorio(5, WIDTH - 10); // Evitar bordes
-                int y = generarAleatorio(5, HEIGHT - 5);
+                int x, y;
+                do
+                {
+                    x = generarAleatorio(5, WIDTH - 10); // Evitar bordes
+                    y = generarAleatorio(5, HEIGHT - 5);
+                }
+                while (posicionOcupada(x, y, recursosPosiciones)); // Reintentar si está ocupada
+
                 recursosPosiciones.emplace_back(x, y);
                 recursosTipos.push_back(tipos[i % tipos.size()]); // Ciclar entre los tipos
             }
@@ -53,7 +90,47 @@ private:
             for (size_t i = 0; i < recursosPosiciones.size(); ++i)
             {
                 gotoxy(recursosPosiciones[i].first, recursosPosiciones[i].second);
-                cout << recursosTipos[i];
+
+                if (recursosTipos[i] == "RB")
+                {
+                    cout << " [] ";
+                    gotoxy(recursosPosiciones[i].first, recursosPosiciones[i].second + 1);
+                    cout << "[==]";
+                    gotoxy(recursosPosiciones[i].first, recursosPosiciones[i].second + 2);
+                    cout << " [] ";
+                    gotoxy(recursosPosiciones[i].first, recursosPosiciones[i].second + 3);
+                    cout << "(RB)";
+                }
+                else if (recursosTipos[i] == "IA")
+                {
+                    cout << " /\\ ";
+                    gotoxy(recursosPosiciones[i].first, recursosPosiciones[i].second + 1);
+                    cout << "<@@>";
+                    gotoxy(recursosPosiciones[i].first, recursosPosiciones[i].second + 2);
+                    cout << " \\/ ";
+                    gotoxy(recursosPosiciones[i].first, recursosPosiciones[i].second + 3);
+                    cout << "(IA)";
+                }
+                else if (recursosTipos[i] == "ES")
+                {
+                    cout << "(~~)";
+                    gotoxy(recursosPosiciones[i].first, recursosPosiciones[i].second + 1);
+                    cout << "(~~)";
+                    gotoxy(recursosPosiciones[i].first, recursosPosiciones[i].second + 2);
+                    cout << " || ";
+                    gotoxy(recursosPosiciones[i].first, recursosPosiciones[i].second + 3);
+                    cout << "(ES)";
+                }
+                else if (recursosTipos[i] == "BD")
+                {
+                    cout << "+--+";
+                    gotoxy(recursosPosiciones[i].first, recursosPosiciones[i].second + 1);
+                    cout << "|##|";
+                    gotoxy(recursosPosiciones[i].first, recursosPosiciones[i].second + 2);
+                    cout << "-__-";
+                    gotoxy(recursosPosiciones[i].first, recursosPosiciones[i].second + 3);
+                    cout << "(BD)";
+                }
             }
         }
     }
@@ -63,15 +140,21 @@ private:
     {
         for (size_t i = 0; i < recursosPosiciones.size(); ++i)
         {
-            // Verificar si el recurso está dentro del área del personaje
-            if (personaje.getX() < recursosPosiciones[i].first + 1 &&
-                personaje.getX() + personaje.getAncho() > recursosPosiciones[i].first &&
-                personaje.getY() < recursosPosiciones[i].second + 1 &&
-                personaje.getY() + personaje.getAlto() > recursosPosiciones[i].second)
+            // Verificar si el personaje colisiona con cualquier dimensión del recurso
+            if (personaje.getX() + personaje.getAncho() > recursosPosiciones[i].first &&
+                personaje.getX() < recursosPosiciones[i].first + 4 && // Ancho del recurso
+                personaje.getY() + personaje.getAlto() > recursosPosiciones[i].second &&
+                personaje.getY() < recursosPosiciones[i].second + 4) // Alto del recurso
             {
                 // Borrar visualmente el recurso del mapa
-                gotoxy(recursosPosiciones[i].first, recursosPosiciones[i].second);
-                cout << ' ';
+                for (int y = 0; y < 4; ++y)
+                {
+                    for (int x = 0; x < 4; ++x)
+                    {
+                        gotoxy(recursosPosiciones[i].first + x, recursosPosiciones[i].second + y);
+                        std::cout << ' ';
+                    }
+                }
 
                 // Incrementar el recurso en el inventario
                 inventario[recursosTipos[i]]++;
@@ -90,25 +173,39 @@ private:
     {
         for (size_t i = 0; i < recursosPosiciones.size(); ++i)
         {
+            bool recursoEliminado = false;
+
             for (const auto& enemigo : enemigos)
             {
                 // Verificar si el enemigo está dentro del área del recurso
-                if (enemigo.getX() < recursosPosiciones[i].first + 1 &&
+                if (enemigo.getX() < recursosPosiciones[i].first + 4 && // Ancho del recurso
                     enemigo.getX() + enemigo.getAncho() > recursosPosiciones[i].first &&
-                    enemigo.getY() < recursosPosiciones[i].second + 1 &&
+                    enemigo.getY() < recursosPosiciones[i].second + 4 && // Alto del recurso
                     enemigo.getY() + enemigo.getAlto() > recursosPosiciones[i].second)
                 {
                     // Borrar visualmente el recurso del mapa
                     gotoxy(recursosPosiciones[i].first, recursosPosiciones[i].second);
-                    cout << ' ';
+                    for (int y = 0; y < 4; ++y) // Borra el área del recurso
+                    {
+                        for (int x = 0; x < 4; ++x)
+                        {
+                            gotoxy(recursosPosiciones[i].first + x, recursosPosiciones[i].second + y);
+                            cout << ' ';
+                        }
+                    }
 
                     // Eliminar el recurso de las listas
                     recursosPosiciones.erase(recursosPosiciones.begin() + i);
                     recursosTipos.erase(recursosTipos.begin() + i);
 
-                    i--; // Ajustar el índice después de eliminar un recurso
+                    recursoEliminado = true;
                     break; // Salir del bucle interno
                 }
+            }
+
+            if (recursoEliminado)
+            {
+                i--; // Ajustar el índice después de eliminar un recurso
             }
         }
     }
