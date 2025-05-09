@@ -268,12 +268,17 @@ private:
             recursosPosiciones.clear();
             recursosTipos.clear();
 
-            // Generar 8 recursos en posiciones aleatorias
             vector<string> tipos = {"e", "c", "t", "h"};
             for (int i = 0; i < 8; ++i)
             {
-                int x = generarAleatorio(10, WIDTH - 5); // Evitar bordes
-                int y = generarAleatorio(5, HEIGHT - 5);
+                int x, y;
+                do
+                {
+                    x = generarAleatorio(10, WIDTH - 5); // Evitar bordes
+                    y = generarAleatorio(5, HEIGHT - 5);
+                }
+                while (posicionOcupada(x, y, recursosPosiciones)); // Reintentar si está ocupada
+
                 recursosPosiciones.emplace_back(x, y);
                 recursosTipos.push_back(tipos[i % tipos.size()]); // Ciclar entre los tipos
             }
@@ -287,7 +292,47 @@ private:
             for (size_t i = 0; i < recursosPosiciones.size(); ++i)
             {
                 gotoxy(recursosPosiciones[i].first, recursosPosiciones[i].second);
-                cout << recursosTipos[i];
+
+                if (recursosTipos[i] == "e") // Empatía
+                {
+                    cout << "+--+";
+                    gotoxy(recursosPosiciones[i].first, recursosPosiciones[i].second + 1);
+                    cout << "|<3|";
+                    gotoxy(recursosPosiciones[i].first, recursosPosiciones[i].second + 2);
+                    cout << "|__|";
+                    gotoxy(recursosPosiciones[i].first, recursosPosiciones[i].second + 3);
+                    cout << "(e )";
+                }
+                else if (recursosTipos[i] == "t") // Trabajo en equipo
+                {
+                    cout << "()()";
+                    gotoxy(recursosPosiciones[i].first, recursosPosiciones[i].second + 1);
+                    cout << "||||";
+                    gotoxy(recursosPosiciones[i].first, recursosPosiciones[i].second + 2);
+                    cout << "||||";
+                    gotoxy(recursosPosiciones[i].first, recursosPosiciones[i].second + 3);
+                    cout << "(t )";
+                }
+                else if (recursosTipos[i] == "h") // Ética
+                {
+                    cout << "(^^)";
+                    gotoxy(recursosPosiciones[i].first, recursosPosiciones[i].second + 1);
+                    cout << "(- )";
+                    gotoxy(recursosPosiciones[i].first, recursosPosiciones[i].second + 2);
+                    cout << "(h )";
+                    gotoxy(recursosPosiciones[i].first, recursosPosiciones[i].second + 3);
+                    cout << "    ";
+                }
+                else if (recursosTipos[i] == "c") // Creatividad
+                {
+                    cout << " /\\ ";
+                    gotoxy(recursosPosiciones[i].first, recursosPosiciones[i].second + 1);
+                    cout << "/~~\\";
+                    gotoxy(recursosPosiciones[i].first, recursosPosiciones[i].second + 2);
+                    cout << "|  |";
+                    gotoxy(recursosPosiciones[i].first, recursosPosiciones[i].second + 3);
+                    cout << "(c )";
+                }
             }
         }
     }
@@ -296,15 +341,21 @@ private:
     {
         for (size_t i = 0; i < recursosPosiciones.size(); ++i)
         {
-            // Verificar si el recurso está dentro del área del personaje
-            if (personaje.getX() < recursosPosiciones[i].first + 1 &&
-                personaje.getX() + personaje.getAncho() > recursosPosiciones[i].first &&
-                personaje.getY() < recursosPosiciones[i].second + 1 &&
-                personaje.getY() + personaje.getAlto() > recursosPosiciones[i].second)
+            // Verificar si el personaje colisiona con cualquier dimensión del recurso humano
+            if (personaje.getX() + personaje.getAncho() > recursosPosiciones[i].first &&
+                personaje.getX() < recursosPosiciones[i].first + 4 && // Ancho del recurso
+                personaje.getY() + personaje.getAlto() > recursosPosiciones[i].second &&
+                personaje.getY() < recursosPosiciones[i].second + 4) // Alto del recurso
             {
                 // Borrar visualmente el recurso del mapa
-                gotoxy(recursosPosiciones[i].first, recursosPosiciones[i].second);
-                cout << ' ';
+                for (int y = 0; y < 4; ++y)
+                {
+                    for (int x = 0; x < 4; ++x)
+                    {
+                        gotoxy(recursosPosiciones[i].first + x, recursosPosiciones[i].second + y);
+                        std::cout << ' ';
+                    }
+                }
 
                 // Incrementar el recurso en el inventario
                 inventario[recursosTipos[i]]++;
@@ -496,6 +547,46 @@ private:
         }
     }
 
+    void detectarColisionesEnemigosRecursosHumanos()
+    {
+        for (size_t i = 0; i < recursosPosiciones.size(); ++i)
+        {
+            bool recursoEliminado = false;
+
+            for (const auto& enemigo : enemigos)
+            {
+                // Verificar si el enemigo colisiona con el recurso humano
+                if (enemigo.getX() < recursosPosiciones[i].first + 4 && // Ancho del recurso
+                    enemigo.getX() + enemigo.getAncho() > recursosPosiciones[i].first &&
+                    enemigo.getY() < recursosPosiciones[i].second + 4 && // Alto del recurso
+                    enemigo.getY() + enemigo.getAlto() > recursosPosiciones[i].second)
+                {
+                    // Borrar visualmente el recurso del mapa
+                    for (int y = 0; y < 4; ++y)
+                    {
+                        for (int x = 0; x < 4; ++x)
+                        {
+                            gotoxy(recursosPosiciones[i].first + x, recursosPosiciones[i].second + y);
+                            std::cout << ' ';
+                        }
+                    }
+
+                    // Eliminar el recurso de las listas
+                    recursosPosiciones.erase(recursosPosiciones.begin() + i);
+                    recursosTipos.erase(recursosTipos.begin() + i);
+
+                    recursoEliminado = true;
+                    break; // Salir del bucle interno
+                }
+            }
+
+            if (recursoEliminado)
+            {
+                i--; // Ajustar el índice después de eliminar un recurso
+            }
+        }
+    }
+
 public:
     Juego()
         : personaje(WIDTH / 2, HEIGHT / 2), gameOver(false), aliado(50, 1), aliado2(50, 30, true)
@@ -616,6 +707,7 @@ public:
                 aliado2.dibujar();
                 detectarColisionesAliado(); // Detectar colisiones con el aliado
                 detectarColisionesAliado2(); // Detectar colisiones con el aliado 2
+                detectarColisionesEnemigosRecursosHumanos(); // Detectar colisiones con recursos humanos
             }
 
             if (mundoActual == 2)
