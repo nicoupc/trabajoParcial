@@ -25,6 +25,8 @@ private:
     static constexpr int LIMITE_Y = HEIGHT;
     bool invulnerable = false; // Estado de invulnerabilidad
     int tiempoInvulnerable = 0; // Contador para invulnerabilidad
+    int velocidad = 1; // Velocidad del personaje
+
 
     // Matriz que representa el personaje
     const int personaje[4][4] = {
@@ -40,9 +42,9 @@ private:
         switch (valor)
         {
         case 0: return 0; // Negro
-        case 1: return 9; // Azul
-        case 2: return 10; // Verde
-        case 3: return 12; // Rojo
+        case 1: return 14; // Crema
+        case 2: return 8; // Gris
+        case 3: return 1; // Azul
         default: return 7; // Blanco (por defecto)
         }
     }
@@ -87,13 +89,18 @@ public:
         return 4; // Alto de la matriz del personaje
     }
 
-    // Método para restar una vida
+    // Metodo para restar una vida
     void restarVida()
     {
         if (vidas > 0)
         {
             vidas--;
         }
+    }
+
+    void sumarVida()
+    {
+        vidas++;
     }
 
     int getVidas() const
@@ -167,8 +174,8 @@ public:
     void mover(int dx, int dy)
     {
         borrar();
-        x += dx;
-        y += dy;
+        x += dx * velocidad; // Multiplica el desplazamiento horizontal por la velocidad
+        y += dy * velocidad; // Multiplica el desplazamiento vertical por la velocidad
         validarLimites();
         dibujar();
     }
@@ -184,6 +191,12 @@ public:
             mover(-2, 0);
         else if (tecla == RIGHT)
             mover(2, 0);
+    }
+
+    // Establece la velocidad del personaje
+    void setVelocidad(int nuevaVelocidad)
+    {
+        velocidad = nuevaVelocidad;
     }
 };
 

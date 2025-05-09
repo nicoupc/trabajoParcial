@@ -3,12 +3,14 @@
 
 #include "Personaje.h"
 #include "Enemigo.h"
+#include "Aliado.h"
 #include "Mundo.h"
 #include <vector>
 #include <map>
 #include <string>
 #include <utility> // Para usar std::pair
 #include <algorithm> // Para usar std::all_of
+#include <ctime>
 
 class Juego
 {
@@ -21,6 +23,7 @@ private:
     vector<pair<int, int>> recursosPosiciones; // Posiciones de los recursos
     vector<string> recursosTipos; // Tipos de recursos
     vector<bool> casillasUsadas; // Vector para almacenar el estado de las casillas
+    Aliado aliado; // Objeto aliado
 
     void inicializarRecursosTech()
     {
@@ -138,7 +141,7 @@ private:
                 if (!personaje.estaInvulnerable()) // Verifica si no es invulnerable
                 {
                     personaje.restarVida();
-                    personaje.activarInvulnerabilidad(30); // Activa invulnerabilidad por 30 ciclos
+                    personaje.activarInvulnerabilidad(20); // Activa invulnerabilidad por 30 ciclos
 
                     if (personaje.getVidas() == 0)
                     {
@@ -155,9 +158,10 @@ private:
     {
         for (auto& enemigo : enemigos)
         {
-            enemigo.moverAleatorio(); // Mueve al enemigo de forma aleatoria
+            enemigo.moverAleatorio(enemigos, aliado);
         }
     }
+
 
     void inicializarRecursosMundo3()
     {
@@ -350,9 +354,40 @@ private:
         }
     }
 
+    void detectarColisionesAliado()
+    {
+        static int contadorVelocidad = 0; // Contador para la duración del aumento de velocidad
+
+        // Detectar colisión entre el personaje y el aliado
+        if (personaje.getX() < aliado.getX() + 5 &&
+            personaje.getX() + personaje.getAncho() > aliado.getX() &&
+            personaje.getY() < aliado.getY() + 5 &&
+            personaje.getY() + personaje.getAlto() > aliado.getY())
+        {
+            if (contadorVelocidad == 0) // Solo incrementar si no está activo
+            {
+                personaje.setVelocidad(2); // Incrementar velocidad (dx y dy en 2 caracteres)
+                contadorVelocidad = 200; // 10 segundos (200 ciclos de 50 ms)
+            }
+            // Evitar que el personaje atraviese al aliado
+            personaje.mover(-1, 0); // Evitar que atraviese el aliado
+        }
+
+        // Reducir el contador y restablecer la velocidad si se agota
+        if (contadorVelocidad > 0)
+        {
+            contadorVelocidad--;
+            if (contadorVelocidad == 0)
+            {
+                personaje.setVelocidad(1); // Restablecer velocidad normal
+            }
+        }
+        aliado.dibujar(); // Dibujar el aliado
+    }
+
 public:
     Juego()
-        : personaje(WIDTH / 2, HEIGHT / 2), gameOver(false)
+        : personaje(WIDTH / 2, HEIGHT / 2), gameOver(false), aliado(50, 1)
     {
         // Inicializar inventario
         inventario["IA"] = 0;
@@ -383,27 +418,6 @@ public:
         system("cls");
         mundo.dibujar();
         personaje.dibujar();
-
-        if (mundo.getMundoActual() == 2)
-        {
-            inicializarRecursosTech();
-            dibujarRecursos();
-        }
-
-        if (mundo.getMundoActual() == 3)
-        {
-            inicializarRecursosMundo3();
-            dibujarRecursosMundo3();
-        }
-
-        // Dibujar enemigos si el mundo actual es el 2 o el 3
-        if (mundo.getMundoActual() == 2 || mundo.getMundoActual() == 3)
-        {
-            for (const auto& enemigo : enemigos)
-            {
-                enemigo.dibujar();
-            }
-        }
     }
 
     // Muestra el número de vidas en la parte derecha de la pantalla
@@ -418,8 +432,24 @@ public:
     {
         int mundoActual = mundo.getMundoActual();
 
+        time_t tiempoInicio = time(0); // Registrar el tiempo de inicio
+        int tiempoNivel = 120; // Tiempo total del nivel en segundos
+
         while (!gameOver)
         {
+            // Calcular el tiempo restante
+            time_t tiempoActual = time(0);
+            int tiempoRestante = tiempoNivel - difftime(tiempoActual, tiempoInicio);
+
+            if (tiempoRestante <= 0)
+            {
+                gameOver = true; // Terminar el juego si el tiempo se agota
+                break;
+            }
+
+            // Mostrar el tiempo restante
+            mostrarTiempo(tiempoRestante);
+
             // Manejar entrada del usuario
             if (_kbhit())
             {
@@ -441,12 +471,14 @@ public:
                     {
                         inicializarRecursosTech();
                         dibujarRecursos();
+                        aliado.dibujar();
                     }
 
                     if (mundoActual == 3)
                     {
                         inicializarRecursosMundo3();
                         dibujarRecursosMundo3();
+                        aliado.dibujar();
                     }
 
                     // Dibujar enemigos si el nuevo mundo es el 2 o el 3
@@ -465,7 +497,9 @@ public:
             {
                 actualizarEnemigos();
                 detectarColisiones();
-                detectarColisionesEnemigosRecursos(); // Llamar a la nueva función
+                detectarColisionesEnemigosRecursos();
+                aliado.dibujar();
+                detectarColisionesAliado(); // Detectar colisiones con el aliado
             }
 
             if (mundoActual == 2)
@@ -514,6 +548,14 @@ public:
         {
             personaje.setPosicionInicial(WIDTH - 7, personaje.getY());
         }
+    }
+
+    void mostrarTiempo(int tiempoRestante)
+    {
+        int minutos = tiempoRestante / 60;
+        int segundos = tiempoRestante % 60;
+        gotoxy(WIDTH + 5, 17); // Posicionar el texto en la consola
+        std::cout << "TIEMPO: " << minutos << ":" << (segundos < 10 ? "0" : "") << segundos;
     }
 
     // Maneja la entrada del usuario

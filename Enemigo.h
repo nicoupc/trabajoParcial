@@ -2,6 +2,7 @@
 #define ENEMIGO_H
 
 #include "Funciones.h"
+#include "Aliado.h"
 #include <iostream>
 
 class Enemigo
@@ -26,8 +27,8 @@ private:
         {
         case 0: return 0; // Negro
         case 1: return 4; // Rojo
-        case 2: return 6; // Amarillo
-        case 3: return 5; // Magenta
+        case 2: return 14; // Amarillo
+        case 3: return 13; // Magenta
         default: return 7; // Blanco (por defecto)
         }
     }
@@ -79,15 +80,49 @@ public:
     }
 
     // Mueve el enemigo aleatoriamente
-    void moverAleatorio()
+    void moverAleatorio(const vector<Enemigo>& enemigos, const Aliado& aliado)
     {
-        borrar(); // Borra el enemigo de su posición actual
-        int dx = generarAleatorio(-1, 1); // Genera un desplazamiento horizontal aleatorio
-        int dy = generarAleatorio(-1, 1); // Genera un desplazamiento vertical aleatorio
-        x += dx; // Actualiza la posición horizontal
-        y += dy; // Actualiza la posición vertical
-        validarLimites(); // Asegura que las coordenadas estén dentro de los límites
-        dibujar(); // Dibuja el enemigo en su nueva posición
+        borrar();
+        int nuevoX, nuevoY;
+
+        do
+        {
+            int dx = generarAleatorio(-1, 1);
+            int dy = generarAleatorio(-1, 1);
+            nuevoX = x + dx;
+            nuevoY = y + dy;
+
+            // Verificar colisión con el aliado
+            if (nuevoX + getAncho() > aliado.getX() &&
+                nuevoX < aliado.getX() + aliado.getAncho() &&
+                nuevoY + getAlto() > aliado.getY() &&
+                nuevoY < aliado.getY() + aliado.getAlto())
+            {
+                continue; // Reintentar si colisiona con el aliado
+            }
+        } while (posicionOcupada(nuevoX, nuevoY, enemigos));
+
+        x = nuevoX;
+        y = nuevoY;
+        validarLimites();
+        dibujar();
+    }
+
+    // Verifica si una posición está ocupada por otro enemigo
+    bool posicionOcupada(int nuevoX, int nuevoY, const vector<Enemigo>& enemigos) const
+    {
+        for (const auto& enemigo : enemigos)
+        {
+            if (&enemigo != this && // Evita comparar con sí mismo
+                nuevoX < enemigo.getX() + enemigo.getAncho() &&
+                nuevoX + getAncho() > enemigo.getX() &&
+                nuevoY < enemigo.getY() + enemigo.getAlto() &&
+                nuevoY + getAlto() > enemigo.getY())
+            {
+                return true; // La posición está ocupada
+            }
+        }
+        return false; // La posición está libre
     }
 
     // Detecta si colisiona con el personaje

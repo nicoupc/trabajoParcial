@@ -8,4 +8,5 @@ add_executable(trabajoParcial main.cpp
         Juego.h
         Personaje.h
         Enemigo.h
-        Mundo.h)
+        Mundo.h
+        Aliado.h)
