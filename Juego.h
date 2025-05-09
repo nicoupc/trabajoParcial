@@ -24,6 +24,7 @@ private:
     vector<string> recursosTipos; // Tipos de recursos
     vector<bool> casillasUsadas; // Vector para almacenar el estado de las casillas
     Aliado aliado; // Objeto aliado
+    Aliado aliado2; // Objeto aliado 2
 
     void inicializarRecursosTech()
     {
@@ -158,7 +159,7 @@ private:
     {
         for (auto& enemigo : enemigos)
         {
-            enemigo.moverAleatorio(enemigos, aliado);
+            enemigo.moverAleatorio(enemigos, aliado, aliado2);
         }
     }
 
@@ -367,7 +368,7 @@ private:
             if (contadorVelocidad == 0) // Solo incrementar si no está activo
             {
                 personaje.setVelocidad(2); // Incrementar velocidad (dx y dy en 2 caracteres)
-                contadorVelocidad = 200; // 10 segundos (200 ciclos de 50 ms)
+                contadorVelocidad = 100;
             }
             // Evitar que el personaje atraviese al aliado
             personaje.mover(-1, 0); // Evitar que atraviese el aliado
@@ -385,9 +386,22 @@ private:
         aliado.dibujar(); // Dibujar el aliado
     }
 
+    void detectarColisionesAliado2()
+    {
+        if (aliado2.estaVisible() &&
+            personaje.getX() < aliado2.getX() + aliado2.getAncho() &&
+            personaje.getX() + personaje.getAncho() > aliado2.getX() &&
+            personaje.getY() < aliado2.getY() + aliado2.getAlto() &&
+            personaje.getY() + personaje.getAlto() > aliado2.getY())
+        {
+            personaje.sumarVida(); // Incrementar una vida
+            aliado2.ocultar(); // Ocultar el aliado
+        }
+    }
+
 public:
     Juego()
-        : personaje(WIDTH / 2, HEIGHT / 2), gameOver(false), aliado(50, 1)
+        : personaje(WIDTH / 2, HEIGHT / 2), gameOver(false), aliado(50, 1), aliado2(50, 30, true)
     {
         // Inicializar inventario
         inventario["IA"] = 0;
@@ -409,6 +423,7 @@ public:
         enemigos.emplace_back(25, 20);
         enemigos.emplace_back(70, 5);
         enemigos.emplace_back(70, 20);
+        enemigos.emplace_back(WIDTH / 2, HEIGHT / 2);
     }
 
     // Inicializa el juego
@@ -472,6 +487,7 @@ public:
                         inicializarRecursosTech();
                         dibujarRecursos();
                         aliado.dibujar();
+                        aliado2.dibujar();
                     }
 
                     if (mundoActual == 3)
@@ -479,6 +495,7 @@ public:
                         inicializarRecursosMundo3();
                         dibujarRecursosMundo3();
                         aliado.dibujar();
+                        aliado2.dibujar();
                     }
 
                     // Dibujar enemigos si el nuevo mundo es el 2 o el 3
@@ -499,7 +516,9 @@ public:
                 detectarColisiones();
                 detectarColisionesEnemigosRecursos();
                 aliado.dibujar();
+                aliado2.dibujar();
                 detectarColisionesAliado(); // Detectar colisiones con el aliado
+                detectarColisionesAliado2(); // Detectar colisiones con el aliado 2
             }
 
             if (mundoActual == 2)

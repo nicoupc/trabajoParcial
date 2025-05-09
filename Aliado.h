@@ -10,6 +10,8 @@ private:
     int x, y; // Coordenadas del aliado
     static constexpr int ANCHO = 4;
     static constexpr int ALTO = 4;
+    bool visible = true; // Indica si el aliado está visible
+    bool esAliadoDeVida; // Nuevo atributo para identificar el tipo de aliado
 
     // Matriz que representa al aliado
     const int aliado[4][4] = {
@@ -22,24 +24,40 @@ private:
     // Obtiene el color según el valor de la matriz
     int obtenerColor(int valor) const
     {
-        switch (valor)
+        if (esAliadoDeVida) // Verifica si es el aliado de vida
         {
-        case 0: return 0; // Negro
-        case 1: return 2; // Verde
-        case 2: return 14; // Verde claro
-        case 3: return 10; // Amarillo
-        default: return 7; // Blanco
+            switch (valor)
+            {
+            case 0: return 0;
+            case 1: return 4;
+            case 2: return 14;
+            case 3: return 12;
+            default: return 7;
+            }
+        }
+        else
+        {
+            switch (valor)
+            {
+            case 0: return 0;
+            case 1: return 2;
+            case 2: return 14;
+            case 3: return 10;
+            default: return 7;
+            }
         }
     }
 
 public:
-    Aliado(int startX, int startY) : x(startX), y(startY)
+    Aliado(int startX, int startY, bool esDeVida = false)
+        : x(startX), y(startY), esAliadoDeVida(esDeVida)
     {
     }
 
     // Dibuja el aliado en la consola
     void dibujar() const
     {
+        if (!visible) return; // No dibujar si está oculto
         for (int i = 0; i < ALTO; ++i)
         {
             for (int j = 0; j < ANCHO; ++j)
@@ -50,8 +68,16 @@ public:
                 std::cout << CUBO;
             }
         }
-        color(7); // Restablece el color
+        color(7);
     }
+
+    void ocultar()
+    {
+        borrar();
+        visible = false;
+    }
+
+    bool estaVisible() const { return visible; }
 
     // Borra el aliado de la consola
     void borrar() const

@@ -26,9 +26,9 @@ private:
         switch (valor)
         {
         case 0: return 0; // Negro
-        case 1: return 4; // Rojo
-        case 2: return 14; // Amarillo
-        case 3: return 13; // Magenta
+        case 1: return 13; // Morado
+        case 2: return 14; // Crema
+        case 3: return 5; // Morado
         default: return 7; // Blanco (por defecto)
         }
     }
@@ -80,7 +80,7 @@ public:
     }
 
     // Mueve el enemigo aleatoriamente
-    void moverAleatorio(const vector<Enemigo>& enemigos, const Aliado& aliado)
+    void moverAleatorio(const vector<Enemigo>& enemigos, const Aliado& aliado, const Aliado& aliado2)
     {
         borrar();
         int nuevoX, nuevoY;
@@ -93,14 +93,15 @@ public:
             nuevoY = y + dy;
 
             // Verificar colisión con el aliado
-            if (nuevoX + getAncho() > aliado.getX() &&
-                nuevoX < aliado.getX() + aliado.getAncho() &&
-                nuevoY + getAlto() > aliado.getY() &&
-                nuevoY < aliado.getY() + aliado.getAlto())
+            if ((nuevoX + getAncho() > aliado.getX() && nuevoX < aliado.getX() + aliado.getAncho() &&
+                    nuevoY + getAlto() > aliado.getY() && nuevoY < aliado.getY() + aliado.getAlto()) ||
+                (nuevoX + getAncho() > aliado2.getX() && nuevoX < aliado2.getX() + aliado2.getAncho() &&
+                    nuevoY + getAlto() > aliado2.getY() && nuevoY < aliado2.getY() + aliado2.getAlto()))
             {
-                continue; // Reintentar si colisiona con el aliado
+                continue; // Reintentar si colisiona con un aliado
             }
-        } while (posicionOcupada(nuevoX, nuevoY, enemigos));
+        }
+        while (posicionOcupada(nuevoX, nuevoY, enemigos));
 
         x = nuevoX;
         y = nuevoY;
