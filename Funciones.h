@@ -114,10 +114,8 @@ void centrarTexto2(const string& texto)
     cout << string(espacios, ' ') << texto << endl;
 }
 
-void mostrarGanaste(bool gameOver)
+void mostrarGanaste()
 {
-    if (!gameOver) return;
-
     system("CLS");
     Sleep(500);
 
@@ -142,9 +140,9 @@ void mostrarGanaste(bool gameOver)
 
     Sleep(1000);
 
-    centrarTexto2("Has ganado... Felicitaciones!");
+    centrarTexto2("Has ganado... Felicitaciones! Lograste construir un nuevo mundo equilibrado.");
     Sleep(2000);
-    centrarTexto2("Presiona cualquier tecla para volver al menú...");
+    centrarTexto2("Presiona cualquier tecla para volver al menu...");
     Sleep(2000);
     _getch();
 }

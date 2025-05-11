@@ -99,6 +99,7 @@ string logoUPC = R"(
                                        =**********=
 )";
 
+
 void mostrarBarraDeCarga()
 {
     maxConsole();

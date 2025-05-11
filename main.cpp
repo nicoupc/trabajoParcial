@@ -39,7 +39,7 @@ int main()
             Sleep(1000);
             return 0;
         default:
-            centrarTexto("Opción no válida. Intente de nuevo.");
+            centrarTexto("Opcion no valida. Intente de nuevo.");
             Sleep(500);
             break;
         }

@@ -75,8 +75,8 @@ private:
                 int x, y;
                 do
                 {
-                    x = generarAleatorio(5, WIDTH - 10); // Evitar bordes
-                    y = generarAleatorio(5, HEIGHT - 5);
+                    x = generarAleatorio(1, WIDTH - 10); // Evitar bordes
+                    y = generarAleatorio(1, HEIGHT - 5);
                 }
                 while (posicionOcupada(x, y, recursosPosiciones)); // Reintentar si esta ocupada
 
@@ -464,9 +464,11 @@ private:
 
         for (int i = 0; i < 3; ++i)
         {
-            // Detectar si el personaje esta cerca de una casilla
-            if (abs(personaje.getX() - (casillasX + i * 5)) <= 1 &&
-                abs(personaje.getY() - casillasY) <= 1)
+            // Detectar si cualquier parte del personaje está cerca de una casilla
+            if (personaje.getX() + personaje.getAncho() > (casillasX + i * 5) &&
+                personaje.getX() < (casillasX + i * 5 + 4) && // Ancho de la casilla
+                personaje.getY() + personaje.getAlto() > casillasY &&
+                personaje.getY() < (casillasY + 2)) // Alto de la casilla
             {
                 string recurso = recursosCasillas[i];
                 if (recurso != "*" && inventario[recurso] > 0 && !casillasUsadasRobot[i])
@@ -516,7 +518,7 @@ private:
 
         // Dibujar las casillas con recursos iniciales o [*] si ya fueron usadas
         int casillasX = xInicio + 5, casillasY = yInicio + alto + 1;
-        vector<string> recursosIniciales = {"[IA]", "[e ]", "[t ]"};
+        vector<string> recursosIniciales = {"[IA]", "[h ]", "[t ]"};
         for (int i = 0; i < 3; ++i)
         {
             gotoxy(casillasX + i * 5, casillasY);
@@ -579,13 +581,15 @@ private:
     void manejarDepositoRecursosHospital()
     {
         int casillasX = 72, casillasY = 12; // Coordenadas iniciales de las casillas
-        vector<string> recursosCasillas = {"IA", "e", "t"}; // Recursos iniciales en las casillas
+        vector<string> recursosCasillas = {"IA", "h", "t"}; // Recursos iniciales en las casillas
 
         for (int i = 0; i < 3; ++i)
         {
-            // Detectar si el personaje esta cerca de una casilla
-            if (abs(personaje.getX() - (casillasX + i * 5)) <= 1 &&
-                abs(personaje.getY() - casillasY) <= 1)
+            // Detectar si cualquier parte del personaje está cerca de una casilla
+            if (personaje.getX() + personaje.getAncho() > (casillasX + i * 5) &&
+                personaje.getX() < (casillasX + i * 5 + 4) && // Ancho de la casilla
+                personaje.getY() + personaje.getAlto() > casillasY &&
+                personaje.getY() < (casillasY + 2)) // Alto de la casilla
             {
                 string recurso = recursosCasillas[i];
                 if (recurso != "*" && inventario[recurso] > 0 && !casillasUsadasHospital[i])
@@ -635,7 +639,7 @@ private:
 
         // Dibujar las casillas con recursos iniciales o [*] si ya fueron usadas
         int casillasX = xInicio + 5, casillasY = yInicio - 2; // Casillas arriba del cuadro
-        vector<string> recursosIniciales = {"[ES]", "[t ]", "[e ]"};
+        vector<string> recursosIniciales = {"[ES]", "[c ]", "[e ]"};
         for (int i = 0; i < 3; ++i)
         {
             gotoxy(casillasX + i * 5, casillasY);
@@ -700,13 +704,15 @@ private:
     void manejarDepositoRecursosEstacion()
     {
         int casillasX = 15, casillasY = HEIGHT - 14; // Coordenadas iniciales de las casillas
-        vector<string> recursosCasillas = {"ES", "t", "e"}; // Recursos iniciales en las casillas
+        vector<string> recursosCasillas = {"ES", "c", "e"}; // Recursos iniciales en las casillas
 
         for (int i = 0; i < 3; ++i)
         {
-            // Detectar si la parte inferior del personaje está cerca de una casilla
-            if (abs((personaje.getY() + personaje.getAlto()) - casillasY) <= 1 &&
-                abs(personaje.getX() - (casillasX + i * 5)) <= 1)
+            // Detectar si cualquier parte del personaje está cerca de una casilla
+            if (personaje.getX() + personaje.getAncho() > (casillasX + i * 5) &&
+                personaje.getX() < (casillasX + i * 5 + 4) && // Ancho de la casilla
+                personaje.getY() + personaje.getAlto() > casillasY &&
+                personaje.getY() < (casillasY + 2)) // Alto de la casilla
             {
                 string recurso = recursosCasillas[i];
                 if (recurso != "*" && inventario[recurso] > 0 && !casillasUsadasEstacion[i])
@@ -756,7 +762,7 @@ private:
 
         // Dibujar las casillas con recursos iniciales o [*] si ya fueron usadas
         int casillasX = xInicio + 5, casillasY = yInicio - 2; // Casillas arriba del cuadro
-        vector<string> recursosIniciales = {"[IA]", "[BD]", "[c ]"};
+        vector<string> recursosIniciales = {"[RB]", "[BD]", "[c ]"};
         for (int i = 0; i < 3; ++i)
         {
             gotoxy(casillasX + i * 5, casillasY);
@@ -819,13 +825,15 @@ private:
     void manejarDepositoRecursosCentro()
     {
         int casillasX = 65, casillasY = HEIGHT - 14; // Coordenadas iniciales de las casillas
-        vector<string> recursosCasillas = {"IA", "BD", "c"}; // Recursos iniciales en las casillas
+        vector<string> recursosCasillas = {"RB", "BD", "c"}; // Recursos iniciales en las casillas
 
         for (int i = 0; i < 3; ++i)
         {
-            // Detectar si la parte inferior del personaje está cerca de una casilla
-            if (abs((personaje.getY() + personaje.getAlto()) - casillasY) <= 1 &&
-                abs(personaje.getX() - (casillasX + i * 5)) <= 1)
+            // Detectar si cualquier parte del personaje está cerca de una casilla
+            if (personaje.getX() + personaje.getAncho() > (casillasX + i * 5) &&
+                personaje.getX() < (casillasX + i * 5 + 4) && // Ancho de la casilla
+                personaje.getY() + personaje.getAlto() > casillasY &&
+                personaje.getY() < (casillasY + 2)) // Alto de la casilla
             {
                 string recurso = recursosCasillas[i];
                 if (recurso != "*" && inventario[recurso] > 0 && !casillasUsadasCentro[i])
@@ -969,20 +977,20 @@ public:
         inventario["c"] = 0;
 
         // Inicializar estados de las casillas
-        // casillasUsadasRobot = {false, false, false};
-        casillasUsadasRobot = {true, true, true}; // Para pruebas
-        // casillasUsadasHospital = {false, false, false};
-        casillasUsadasHospital = {true, true, true}; // Para pruebas
-        // casillasUsadasEstacion = {false, false, false};
-        casillasUsadasEstacion = {true, true, true}; // Para pruebas
+        casillasUsadasRobot = {false, false, false};
+        // casillasUsadasRobot = {true, true, true}; // Para pruebas
+        casillasUsadasHospital = {false, false, false};
+        // casillasUsadasHospital = {true, true, true}; // Para pruebas
+        casillasUsadasEstacion = {false, false, false};
+        // casillasUsadasEstacion = {true, true, true}; // Para pruebas
         casillasUsadasCentro = {false, false, false};
         // casillasUsadasCentro = {true, true, true}; // Para pruebas
 
         // Agregar enemigos iniciales
-        enemigos.emplace_back(25, 5);
-        enemigos.emplace_back(25, 20);
-        enemigos.emplace_back(70, 5);
-        enemigos.emplace_back(70, 20);
+        enemigos.emplace_back(1, 1);
+        enemigos.emplace_back(1, 30);
+        enemigos.emplace_back(80, 1);
+        enemigos.emplace_back(80, 30);
         enemigos.emplace_back(WIDTH / 2, HEIGHT / 2);
     }
 
@@ -1011,13 +1019,28 @@ public:
         mostrarPerdiste(true); // Llama a la función mostrarPerdiste
     }
 
+    void ganaste()
+    {
+        // Asegurarse de que todas las construcciones se dibujen antes de continuar
+        dibujarCuadradoYCasillasRobot();
+        dibujarCuadroYCasillasHospital();
+        dibujarCuadroYCasillasEstacion();
+        dibujarCuadroYCasillasCentro();
+
+        Sleep(1000); // Esperar 1 segundo para que el jugador vea la última construcción
+
+        mostrarGanaste(); // Llamar a la función mostrarGanaste
+
+        gameOver = true; // Terminar el juego
+    }
+
     // Ejecuta el bucle principal del juego
     void buclePrincipal()
     {
         int mundoActual = mundo.getMundoActual();
 
         time_t tiempoInicio = time(0); // Registrar el tiempo de inicio
-        int tiempoNivel = 2; // Tiempo total del nivel en segundos
+        int tiempoNivel = 150; // Tiempo total del nivel en segundos
 
         while (!gameOver)
         {
@@ -1126,6 +1149,16 @@ public:
                 break;
             }
 
+            if (all_of(casillasUsadasRobot.begin(), casillasUsadasRobot.end(), [](bool usada) { return usada; }) &&
+                all_of(casillasUsadasHospital.begin(), casillasUsadasHospital.end(),
+                       [](bool usada) { return usada; }) &&
+                all_of(casillasUsadasEstacion.begin(), casillasUsadasEstacion.end(),
+                       [](bool usada) { return usada; }) &&
+                all_of(casillasUsadasCentro.begin(), casillasUsadasCentro.end(), [](bool usada) { return usada; }))
+            {
+                ganaste();
+                break;
+            }
 
             // Actualizar estado del personaje
             personaje.actualizarInvulnerabilidad();
