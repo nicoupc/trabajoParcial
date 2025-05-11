@@ -24,6 +24,8 @@ private:
     vector<string> recursosTipos; // Tipos de recursos
     vector<bool> casillasUsadasRobot; // Para las casillas del robot
     vector<bool> casillasUsadasHospital; // Para las casillas del hospital
+    vector<bool> casillasUsadasEstacion; // Para las casillas de la estación de energia sostenible
+    vector<bool> casillasUsadasCentro; // Para las casillas del centro de investigacion
     Aliado aliado; // Objeto aliado
     Aliado aliado2; // Objeto aliado 2
 
@@ -408,7 +410,7 @@ private:
 
         // Verificar si todas las casillas estan usadas
         bool todasUsadas = all_of(casillasUsadasRobot.begin(), casillasUsadasRobot.end(),
-                                       [](bool usada) { return usada; });
+                                  [](bool usada) { return usada; });
 
         if (todasUsadas)
         {
@@ -529,7 +531,7 @@ private:
 
         // Verificar si todas las casillas estan usadas
         bool todasUsadas = all_of(casillasUsadasHospital.begin(), casillasUsadasHospital.end(),
-                                       [](bool usada) { return usada; });
+                                  [](bool usada) { return usada; });
 
         if (todasUsadas)
         {
@@ -621,6 +623,216 @@ private:
                 personaje.getY() < casillasY + 1)
             {
                 personaje.mover(-1, 0); // Evitar que atraviese las casillas
+            }
+        }
+    }
+
+    void dibujarCuadroYCasillasEstacion() const
+    {
+        int xInicio = 10, yInicio = HEIGHT - 12; // Coordenadas iniciales
+        int ancho = 23, alto = 8;
+
+        // Dibujar las casillas con recursos iniciales o [*] si ya fueron usadas
+        int casillasX = xInicio + 5, casillasY = yInicio - 2; // Casillas arriba del cuadro
+        vector<string> recursosIniciales = {"[ES]", "[t ]", "[e ]"};
+        for (int i = 0; i < 3; ++i)
+        {
+            gotoxy(casillasX + i * 5, casillasY);
+            if (casillasUsadasEstacion[i])
+            {
+                cout << "[* ]"; // Dibujar casilla usada
+            }
+            else
+            {
+                cout << recursosIniciales[i]; // Dibujar recurso inicial
+            }
+        }
+
+        // Verificar si todas las casillas están usadas
+        bool todasUsadas = all_of(casillasUsadasEstacion.begin(), casillasUsadasEstacion.end(),
+                                  [](bool usada) { return usada; });
+
+        if (todasUsadas)
+        {
+            gotoxy(10, yInicio);
+            cout << "\"ESTACION DE ENERGIA SOSTENIBLE\"";
+            // Dibujar el arte ASCII de la estación
+            color(2); // Cambiar color a verde
+            gotoxy(xInicio, yInicio + 1);
+            cout << "      ____|     |____    ";
+            gotoxy(xInicio, yInicio + 2);
+            cout << "     |____|_____|____|   ";
+            gotoxy(xInicio, yInicio + 3);
+            cout << "  ___/ /  |     |  \\ \\__ ";
+            gotoxy(xInicio, yInicio + 4);
+            cout << " |    ____|_____|____   |";
+            gotoxy(xInicio, yInicio + 5);
+            cout << " |  []      ___      [] |";
+            gotoxy(xInicio, yInicio + 6);
+            cout << " |  []     |   |     [] |";
+            gotoxy(xInicio, yInicio + 7);
+            cout << " |  []     |   |     [] |";
+            gotoxy(xInicio, yInicio + 8);
+            cout << " |_________|   |________|";
+            color(7); // Cambiar color a blanco
+        }
+        else
+        {
+            // Dibujar el cuadro vacío
+            for (int x = xInicio; x < xInicio + ancho; ++x)
+            {
+                gotoxy(x, yInicio);
+                cout << "-";
+                gotoxy(x, yInicio + alto - 1);
+                cout << "-";
+            }
+            for (int y = yInicio + 1; y < yInicio + alto - 1; ++y)
+            {
+                gotoxy(xInicio, y);
+                cout << "|";
+                gotoxy(xInicio + ancho - 1, y);
+                cout << "|";
+            }
+        }
+    }
+
+    void manejarDepositoRecursosEstacion()
+    {
+        int casillasX = 15, casillasY = HEIGHT - 14; // Coordenadas iniciales de las casillas
+        vector<string> recursosCasillas = {"ES", "t", "e"}; // Recursos iniciales en las casillas
+
+        for (int i = 0; i < 3; ++i)
+        {
+            // Detectar si la parte inferior del personaje está cerca de una casilla
+            if (abs((personaje.getY() + personaje.getAlto()) - casillasY) <= 1 &&
+                abs(personaje.getX() - (casillasX + i * 5)) <= 1)
+            {
+                string recurso = recursosCasillas[i];
+                if (recurso != "*" && inventario[recurso] > 0 && !casillasUsadasEstacion[i])
+                {
+                    // Descontar el recurso del inventario
+                    inventario[recurso]--;
+
+                    // Marcar la casilla como usada
+                    casillasUsadasEstacion[i] = true;
+                }
+            }
+        }
+    }
+
+    void detectarColisionesCuadroYCasillasEstacion()
+    {
+        int xInicio = 10, yInicio = HEIGHT - 12;
+        int ancho = 25, alto = 8;
+        int casillasX = 15, casillasY = HEIGHT - 14;
+
+        // Bloquear el paso sobre el cuadro
+        if (personaje.getX() + personaje.getAncho() > xInicio &&
+            personaje.getX() < xInicio + ancho &&
+            personaje.getY() + personaje.getAlto() > yInicio &&
+            personaje.getY() < yInicio + alto)
+        {
+            personaje.mover(-1, 0); // Evitar que atraviese el cuadro
+        }
+
+        // Bloquear el paso sobre las casillas
+        for (int i = 0; i < 3; ++i)
+        {
+            if (personaje.getX() + personaje.getAncho() > casillasX + i * 5 &&
+                personaje.getX() < casillasX + i * 5 + 3 &&
+                personaje.getY() + personaje.getAlto() > casillasY &&
+                personaje.getY() < casillasY + 1)
+            {
+                personaje.mover(-1, 0); // Evitar que atraviese las casillas
+            }
+        }
+    }
+
+    void dibujarCuadroYCasillasCentro() const
+    {
+        int xInicio = 60, yInicio = HEIGHT - 12; // Coordenadas iniciales
+        int ancho = 23, alto = 8;
+
+        // Dibujar las casillas con recursos iniciales o [*] si ya fueron usadas
+        int casillasX = xInicio + 5, casillasY = yInicio - 2; // Casillas arriba del cuadro
+        vector<string> recursosIniciales = {"[IA]", "[BD]", "[c ]"};
+        for (int i = 0; i < 3; ++i)
+        {
+            gotoxy(casillasX + i * 5, casillasY);
+            if (casillasUsadasCentro[i])
+            {
+                cout << "[* ]"; // Dibujar casilla usada
+            }
+            else
+            {
+                cout << recursosIniciales[i]; // Dibujar recurso inicial
+            }
+        }
+
+        // Verificar si todas las casillas están usadas
+        bool todasUsadas = all_of(casillasUsadasCentro.begin(), casillasUsadasCentro.end(),
+                                  [](bool usada) { return usada; });
+
+        if (todasUsadas)
+        {
+            gotoxy(61, yInicio - 1);
+            cout << "\"CENTRO DE INVESTIGACION CIENTIFICA\"";
+            // Dibujar el arte ASCII del centro
+            gotoxy(xInicio, yInicio);
+            cout << "      ________________    ";
+            gotoxy(xInicio, yInicio + 1);
+            cout << "     |                |   ";
+            gotoxy(xInicio, yInicio + 2);
+            cout << "     |   ________     |   ";
+            gotoxy(xInicio, yInicio + 3);
+            cout << "  ___|  |      | |    |__ ";
+            gotoxy(xInicio, yInicio + 4);
+            cout << " |      |      | |       |";
+            gotoxy(xInicio, yInicio + 5);
+            cout << " |      |______|_|       |";
+            gotoxy(xInicio, yInicio + 6);
+            cout << " |_______________________|";
+        }
+        else
+        {
+            // Dibujar el cuadro vacío
+            for (int x = xInicio; x < xInicio + ancho; ++x)
+            {
+                gotoxy(x, yInicio);
+                cout << "-";
+                gotoxy(x, yInicio + alto - 1);
+                cout << "-";
+            }
+            for (int y = yInicio + 1; y < yInicio + alto - 1; ++y)
+            {
+                gotoxy(xInicio, y);
+                cout << "|";
+                gotoxy(xInicio + ancho - 1, y);
+                cout << "|";
+            }
+        }
+    }
+
+    void manejarDepositoRecursosCentro()
+    {
+        int casillasX = 65, casillasY = HEIGHT - 14; // Coordenadas iniciales de las casillas
+        vector<string> recursosCasillas = {"IA", "BD", "c"}; // Recursos iniciales en las casillas
+
+        for (int i = 0; i < 3; ++i)
+        {
+            // Detectar si la parte inferior del personaje está cerca de una casilla
+            if (abs((personaje.getY() + personaje.getAlto()) - casillasY) <= 1 &&
+                abs(personaje.getX() - (casillasX + i * 5)) <= 1)
+            {
+                string recurso = recursosCasillas[i];
+                if (recurso != "*" && inventario[recurso] > 0 && !casillasUsadasCentro[i])
+                {
+                    // Descontar el recurso del inventario
+                    inventario[recurso]--;
+
+                    // Marcar la casilla como usada
+                    casillasUsadasCentro[i] = true;
+                }
             }
         }
     }
@@ -730,6 +942,9 @@ public:
         casillasUsadasRobot = {true, true, true}; // Para pruebas
         // casillasUsadasHospital = {false, false, false};
         casillasUsadasHospital = {true, true, true}; // Para pruebas
+        casillasUsadasEstacion = {false, false, false};
+        // casillasUsadasEstacion = {true, true, true}; // Para pruebas
+        casillasUsadasCentro = {false, false, false};
 
         // Agregar enemigos iniciales
         enemigos.emplace_back(25, 5);
@@ -755,6 +970,17 @@ public:
         cout << "VIDAS: " << personaje.getVidas();
     }
 
+    void mostrarMensajeGameOver(const string& mensaje)
+    {
+        system("cls");
+        gotoxy(WIDTH / 2 - 5, HEIGHT / 2 - 1);
+        cout << "GAME OVER";
+        gotoxy(WIDTH / 2 - mensaje.size() / 2, HEIGHT / 2);
+        cout << mensaje;
+        Sleep(3000); // Esperar 2 segundos
+        system("cls");
+    }
+
     // Ejecuta el bucle principal del juego
     void buclePrincipal()
     {
@@ -772,6 +998,7 @@ public:
             if (tiempoRestante <= 0)
             {
                 gameOver = true; // Terminar el juego si el tiempo se agota
+                mostrarMensajeGameOver("Se acabo el tiempo!");
                 break;
             }
 
@@ -854,6 +1081,14 @@ public:
                 dibujarCuadroYCasillasHospital();
                 manejarDepositoRecursosHospital();
                 detectarColisionesCuadroYCasillasHospital();
+                dibujarCuadroYCasillasEstacion();
+                manejarDepositoRecursosEstacion();
+                detectarColisionesCuadroYCasillasEstacion();
+            }
+
+            if (personaje.getVidas() == 0)
+            {
+                mostrarMensajeGameOver("Te quedaste sin vidas!");
             }
 
             // Actualizar estado del personaje
