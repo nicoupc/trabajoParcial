@@ -28,7 +28,9 @@ private:
     }
 
 public:
-    Mundo(int mundoInicial = 1) : mundoActual(mundoInicial) {}
+    Mundo(int mundoInicial = 1) : mundoActual(mundoInicial)
+    {
+    }
 
     int getMundoActual() const { return mundoActual; }
 
@@ -44,16 +46,23 @@ public:
 
     void dibujar() const
     {
+        dibujarLimites(mundoActual == 1 ? '#' : mundoActual == 2 ? '@' : '*');
+
+        // Calcular la posición central para el texto
+        int posicionX = (WIDTH - 20) / 2; // Ajusta el ancho del texto según el nombre más largo
+        int posicionY = HEIGHT; // Justo debajo del límite inferior
+
+        gotoxy(posicionX, posicionY);
         switch (mundoActual)
         {
         case 1:
-            dibujarLimites('#');
+            cout << "MUNDO 3: EQUILIBRADO";
             break;
         case 2:
-            dibujarLimites('@');
+            cout << "MUNDO 1: TECNOLOGICO";
             break;
         case 3:
-            dibujarLimites('*');
+            cout << "MUNDO 2: HUMANO";
             break;
         default:
             break;
