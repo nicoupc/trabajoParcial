@@ -5,6 +5,7 @@
 #include "Enemigo.h"
 #include "Aliado.h"
 #include "Mundo.h"
+#include "Funciones.h"
 #include <vector> // Para usar std::vector
 #include <map> // Para usar std::map
 #include <string> // Para usar std::string
@@ -1004,12 +1005,10 @@ public:
     void mostrarMensajeGameOver(const string& mensaje)
     {
         system("cls");
-        gotoxy(WIDTH / 2 - 5, HEIGHT / 2 - 1);
-        cout << "GAME OVER";
         gotoxy(WIDTH / 2 - mensaje.size() / 2, HEIGHT / 2);
         cout << mensaje;
-        Sleep(3000); // Esperar 2 segundos
-        system("cls");
+        Sleep(2000); // Esperar 3 segundos
+        mostrarPerdiste(true); // Llama a la función mostrarPerdiste
     }
 
     // Ejecuta el bucle principal del juego
@@ -1018,7 +1017,7 @@ public:
         int mundoActual = mundo.getMundoActual();
 
         time_t tiempoInicio = time(0); // Registrar el tiempo de inicio
-        int tiempoNivel = 120; // Tiempo total del nivel en segundos
+        int tiempoNivel = 2; // Tiempo total del nivel en segundos
 
         while (!gameOver)
         {
@@ -1122,8 +1121,11 @@ public:
 
             if (personaje.getVidas() == 0)
             {
+                gameOver = true; // Terminar el juego si las vidas se agotan
                 mostrarMensajeGameOver("Te quedaste sin vidas!");
+                break;
             }
+
 
             // Actualizar estado del personaje
             personaje.actualizarInvulnerabilidad();
