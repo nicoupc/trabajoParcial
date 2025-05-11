@@ -5,12 +5,12 @@
 #include "Enemigo.h"
 #include "Aliado.h"
 #include "Mundo.h"
-#include <vector>
-#include <map>
-#include <string>
+#include <vector> // Para usar std::vector
+#include <map> // Para usar std::map
+#include <string> // Para usar std::string
 #include <utility> // Para usar std::pair
 #include <algorithm> // Para usar std::all_of
-#include <ctime>
+#include <ctime> // Para usar std::time
 
 class Juego
 {
@@ -27,38 +27,38 @@ private:
     Aliado aliado; // Objeto aliado
     Aliado aliado2; // Objeto aliado 2
 
-    // Verifica si una posición está ocupada por otro recurso
+    // Verifica si una posicion esta ocupada por otro recurso
     bool posicionOcupada(int x, int y, const vector<pair<int, int>>& posiciones, int ancho = 4, int alto = 4)
     {
-        // Verificar si la posición se superpone con otros recursos
+        // Verificar si la posicion se superpone con otros recursos
         for (const auto& pos : posiciones)
         {
             if (x < pos.first + ancho && x + ancho > pos.first &&
                 y < pos.second + alto && y + alto > pos.second)
             {
-                return true; // La posición está ocupada
+                return true; // La posicion esta ocupada
             }
         }
 
-        // Verificar si la posición se superpone con el aliado
+        // Verificar si la posicion se superpone con el aliado
         if (x < aliado.getX() + aliado.getAncho() && x + ancho > aliado.getX() &&
             y < aliado.getY() + aliado.getAlto() && y + alto > aliado.getY())
         {
-            return true; // La posición está ocupada por el aliado
+            return true; // La posicion esta ocupada por el aliado
         }
 
-        // Verificar si la posición se superpone con el aliado2
-        if (aliado2.estaVisible() && // Solo verificar si el aliado2 está visible
+        // Verificar si la posicion se superpone con el aliado2
+        if (aliado2.estaVisible() && // Solo verificar si el aliado2 esta visible
             x < aliado2.getX() + aliado2.getAncho() && x + ancho > aliado2.getX() &&
             y < aliado2.getY() + aliado2.getAlto() && y + alto > aliado2.getY())
         {
-            return true; // La posición está ocupada por el aliado2
+            return true; // La posicion esta ocupada por el aliado2
         }
 
-        return false; // La posición está libre
+        return false; // La posicion esta libre
     }
 
-    // Modificar la generación de recursos
+    // Modificar la generacion de recursos
     void inicializarRecursosTech()
     {
         if (mundo.getMundoActual() == 2)
@@ -75,9 +75,9 @@ private:
                     x = generarAleatorio(5, WIDTH - 10); // Evitar bordes
                     y = generarAleatorio(5, HEIGHT - 5);
                 }
-                while (posicionOcupada(x, y, recursosPosiciones)); // Reintentar si está ocupada
+                while (posicionOcupada(x, y, recursosPosiciones)); // Reintentar si esta ocupada
 
-                recursosPosiciones.emplace_back(x, y);
+                recursosPosiciones.emplace_back(x, y); // Agregar posicion
                 recursosTipos.push_back(tipos[i % tipos.size()]); // Ciclar entre los tipos
             }
         }
@@ -141,7 +141,7 @@ private:
     {
         for (size_t i = 0; i < recursosPosiciones.size(); ++i)
         {
-            // Verificar si el personaje colisiona con cualquier dimensión del recurso
+            // Verificar si el personaje colisiona con cualquier dimension del recurso
             if (personaje.getX() + personaje.getAncho() > recursosPosiciones[i].first &&
                 personaje.getX() < recursosPosiciones[i].first + 4 && // Ancho del recurso
                 personaje.getY() + personaje.getAlto() > recursosPosiciones[i].second &&
@@ -153,7 +153,7 @@ private:
                     for (int x = 0; x < 4; ++x)
                     {
                         gotoxy(recursosPosiciones[i].first + x, recursosPosiciones[i].second + y);
-                        std::cout << ' ';
+                        cout << ' ';
                     }
                 }
 
@@ -164,7 +164,7 @@ private:
                 recursosPosiciones.erase(recursosPosiciones.begin() + i);
                 recursosTipos.erase(recursosTipos.begin() + i);
 
-                break; // Salir del bucle después de recoger un recurso
+                break; // Salir del bucle despues de recoger un recurso
             }
         }
     }
@@ -178,7 +178,7 @@ private:
 
             for (const auto& enemigo : enemigos)
             {
-                // Verificar si el enemigo está dentro del área del recurso
+                // Verificar si el enemigo esta dentro del area del recurso
                 if (enemigo.getX() < recursosPosiciones[i].first + 4 && // Ancho del recurso
                     enemigo.getX() + enemigo.getAncho() > recursosPosiciones[i].first &&
                     enemigo.getY() < recursosPosiciones[i].second + 4 && // Alto del recurso
@@ -186,7 +186,7 @@ private:
                 {
                     // Borrar visualmente el recurso del mapa
                     gotoxy(recursosPosiciones[i].first, recursosPosiciones[i].second);
-                    for (int y = 0; y < 4; ++y) // Borra el área del recurso
+                    for (int y = 0; y < 4; ++y) // Borra el area del recurso
                     {
                         for (int x = 0; x < 4; ++x)
                         {
@@ -206,7 +206,7 @@ private:
 
             if (recursoEliminado)
             {
-                i--; // Ajustar el índice después de eliminar un recurso
+                i--; // Ajustar el indice despues de eliminar un recurso
             }
         }
     }
@@ -215,7 +215,7 @@ private:
     void mostrarInventario() const
     {
         int yOffset = 2; // Desplazamiento debajo de las vidas
-        gotoxy(WIDTH + 5, yOffset); // Mostrar título
+        gotoxy(WIDTH + 5, yOffset); // Mostrar titulo
         cout << "RECURSOS TECNOLOGICOS:";
         gotoxy(WIDTH + 5, yOffset + 2);
         cout << "Inteligencia Artificial (IA): " << inventario.at("IA");
@@ -278,7 +278,7 @@ private:
                     x = generarAleatorio(10, WIDTH - 5); // Evitar bordes
                     y = generarAleatorio(5, HEIGHT - 5);
                 }
-                while (posicionOcupada(x, y, recursosPosiciones)); // Reintentar si está ocupada
+                while (posicionOcupada(x, y, recursosPosiciones)); // Reintentar si esta ocupada
 
                 recursosPosiciones.emplace_back(x, y);
                 recursosTipos.push_back(tipos[i % tipos.size()]); // Ciclar entre los tipos
@@ -294,7 +294,7 @@ private:
             {
                 gotoxy(recursosPosiciones[i].first, recursosPosiciones[i].second);
 
-                if (recursosTipos[i] == "e") // Empatía
+                if (recursosTipos[i] == "e") // Empatia
                 {
                     cout << "+--+";
                     gotoxy(recursosPosiciones[i].first, recursosPosiciones[i].second + 1);
@@ -314,7 +314,7 @@ private:
                     gotoxy(recursosPosiciones[i].first, recursosPosiciones[i].second + 3);
                     cout << "(t )";
                 }
-                else if (recursosTipos[i] == "h") // Ética
+                else if (recursosTipos[i] == "h") // etica
                 {
                     cout << "(^^)";
                     gotoxy(recursosPosiciones[i].first, recursosPosiciones[i].second + 1);
@@ -342,7 +342,7 @@ private:
     {
         for (size_t i = 0; i < recursosPosiciones.size(); ++i)
         {
-            // Verificar si el personaje colisiona con cualquier dimensión del recurso humano
+            // Verificar si el personaje colisiona con cualquier dimension del recurso humano
             if (personaje.getX() + personaje.getAncho() > recursosPosiciones[i].first &&
                 personaje.getX() < recursosPosiciones[i].first + 4 && // Ancho del recurso
                 personaje.getY() + personaje.getAlto() > recursosPosiciones[i].second &&
@@ -354,7 +354,7 @@ private:
                     for (int x = 0; x < 4; ++x)
                     {
                         gotoxy(recursosPosiciones[i].first + x, recursosPosiciones[i].second + y);
-                        std::cout << ' ';
+                        cout << ' ';
                     }
                 }
 
@@ -365,15 +365,15 @@ private:
                 recursosPosiciones.erase(recursosPosiciones.begin() + i);
                 recursosTipos.erase(recursosTipos.begin() + i);
 
-                break; // Salir del bucle después de recoger un recurso
+                break; // Salir del bucle despues de recoger un recurso
             }
         }
     }
 
     void mostrarInventarioMundo3() const
     {
-        int yOffset = 9; // Desplazamiento debajo del inventario tecnológico
-        gotoxy(WIDTH + 5, yOffset); // Mostrar título
+        int yOffset = 9; // Desplazamiento debajo del inventario tecnologico
+        gotoxy(WIDTH + 5, yOffset); // Mostrar titulo
         cout << "RECURSOS HUMANOS:";
         gotoxy(WIDTH + 5, yOffset + 2);
         cout << "empatia (e): " << inventario.at("e");
@@ -406,8 +406,8 @@ private:
             }
         }
 
-        // Verificar si todas las casillas están usadas
-        bool todasUsadas = std::all_of(casillasUsadasRobot.begin(), casillasUsadasRobot.end(),
+        // Verificar si todas las casillas estan usadas
+        bool todasUsadas = all_of(casillasUsadasRobot.begin(), casillasUsadasRobot.end(),
                                        [](bool usada) { return usada; });
 
         if (todasUsadas)
@@ -415,6 +415,7 @@ private:
             gotoxy(11, 2);
             cout << "\"ROBOT  HUMANITARIO\"";
             // Dibujar el personaje ASCII
+            color(8); // Cambiar color a gris
             gotoxy(xInicio, yInicio);
             cout << " _(\\    |@@|           ";
             gotoxy(xInicio, yInicio + 1);
@@ -431,10 +432,11 @@ private:
             cout << "      _)(  )(_         ";
             gotoxy(xInicio, yInicio + 7);
             cout << "     `---''---`        ";
+            color(7); // Cambiar color a blanco
         }
         else
         {
-            // Dibujar el cuadrado vacío
+            // Dibujar el cuadrado vacio
             for (int x = xInicio; x < xInicio + ancho; ++x)
             {
                 gotoxy(x, yInicio);
@@ -459,7 +461,7 @@ private:
 
         for (int i = 0; i < 3; ++i)
         {
-            // Detectar si el personaje está cerca de una casilla
+            // Detectar si el personaje esta cerca de una casilla
             if (abs(personaje.getX() - (casillasX + i * 5)) <= 1 &&
                 abs(personaje.getY() - casillasY) <= 1)
             {
@@ -525,8 +527,8 @@ private:
             }
         }
 
-        // Verificar si todas las casillas están usadas
-        bool todasUsadas = std::all_of(casillasUsadasHospital.begin(), casillasUsadasHospital.end(),
+        // Verificar si todas las casillas estan usadas
+        bool todasUsadas = all_of(casillasUsadasHospital.begin(), casillasUsadasHospital.end(),
                                        [](bool usada) { return usada; });
 
         if (todasUsadas)
@@ -553,7 +555,7 @@ private:
         }
         else
         {
-            // Dibujar el cuadrado vacío
+            // Dibujar el cuadrado vacio
             for (int x = xInicio; x < xInicio + ancho; ++x)
             {
                 gotoxy(x, yInicio);
@@ -578,7 +580,7 @@ private:
 
         for (int i = 0; i < 3; ++i)
         {
-            // Detectar si el personaje está cerca de una casilla
+            // Detectar si el personaje esta cerca de una casilla
             if (abs(personaje.getX() - (casillasX + i * 5)) <= 1 &&
                 abs(personaje.getY() - casillasY) <= 1)
             {
@@ -625,15 +627,15 @@ private:
 
     void detectarColisionesAliado()
     {
-        static int contadorVelocidad = 0; // Contador para la duración del aumento de velocidad
+        static int contadorVelocidad = 0; // Contador para la duracion del aumento de velocidad
 
-        // Detectar colisión entre el personaje y el aliado
+        // Detectar colision entre el personaje y el aliado
         if (personaje.getX() < aliado.getX() + 5 &&
             personaje.getX() + personaje.getAncho() > aliado.getX() &&
             personaje.getY() < aliado.getY() + 5 &&
             personaje.getY() + personaje.getAlto() > aliado.getY())
         {
-            if (contadorVelocidad == 0) // Solo incrementar si no está activo
+            if (contadorVelocidad == 0) // Solo incrementar si no esta activo
             {
                 personaje.setVelocidad(2); // Incrementar velocidad (dx y dy en 2 caracteres)
                 contadorVelocidad = 100;
@@ -687,7 +689,7 @@ private:
                         for (int x = 0; x < 4; ++x)
                         {
                             gotoxy(recursosPosiciones[i].first + x, recursosPosiciones[i].second + y);
-                            std::cout << ' ';
+                            cout << ' ';
                         }
                     }
 
@@ -702,7 +704,7 @@ private:
 
             if (recursoEliminado)
             {
-                i--; // Ajustar el índice después de eliminar un recurso
+                i--; // Ajustar el indice despues de eliminar un recurso
             }
         }
     }
@@ -724,10 +726,10 @@ public:
         inventario["c"] = 0;
 
         // Inicializar estados de las casillas
-        casillasUsadasRobot = {false, false, false};
-        // casillasUsadasRobot = {true, true, true}; // Para pruebas
-        casillasUsadasHospital = {false, false, false};
-        // casillasUsadasHospital = {true, true, true}; // Para pruebas
+        // casillasUsadasRobot = {false, false, false};
+        casillasUsadasRobot = {true, true, true}; // Para pruebas
+        // casillasUsadasHospital = {false, false, false};
+        casillasUsadasHospital = {true, true, true}; // Para pruebas
 
         // Agregar enemigos iniciales
         enemigos.emplace_back(25, 5);
@@ -746,7 +748,7 @@ public:
         personaje.dibujar();
     }
 
-    // Muestra el número de vidas en la parte derecha de la pantalla
+    // Muestra el numero de vidas en la parte derecha de la pantalla
     void mostrarVidas() const
     {
         gotoxy(WIDTH + 5, 0); // Posiciona el texto en el borde derecho
@@ -783,7 +785,7 @@ public:
                 manejarEntrada(tecla);
             }
 
-            // Manejar transición entre mundos
+            // Manejar transicion entre mundos
             if (!mundo.estaDentroDemundo(personaje.getX(), personaje.getY()))
             {
                 int nuevoMundo = mundo.manejarTransicion(personaje.getX(), personaje.getY());
@@ -863,7 +865,7 @@ public:
         }
     }
 
-    // Actualiza la posición del personaje al cambiar de mundo
+    // Actualiza la posicion del personaje al cambiar de mundo
     void actualizarPosicionPersonaje(int mundoAnterior, int nuevoMundo)
     {
         if (mundoAnterior == 1 && nuevoMundo == 2)
@@ -889,7 +891,7 @@ public:
         int minutos = tiempoRestante / 60;
         int segundos = tiempoRestante % 60;
         gotoxy(WIDTH + 5, 17); // Posicionar el texto en la consola
-        std::cout << "TIEMPO: " << minutos << ":" << (segundos < 10 ? "0" : "") << segundos;
+        cout << "TIEMPO: " << minutos << ":" << (segundos < 10 ? "0" : "") << segundos;
     }
 
     // Maneja la entrada del usuario

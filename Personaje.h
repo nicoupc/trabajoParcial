@@ -36,7 +36,7 @@ private:
         {0, 2, 2, 0}
     };
 
-    // Obtiene el color según el valor de la matriz
+    // Obtiene el color segun el valor de la matriz
     int obtenerColor(int valor) const
     {
         switch (valor)
@@ -49,7 +49,7 @@ private:
         }
     }
 
-    // Valida que las coordenadas estén dentro de los límites
+    // Valida que las coordenadas esten dentro de los limites
     void validarLimites()
     {
         if (x <= 1) x = 1;
@@ -65,13 +65,13 @@ public:
         validarLimites();
     }
 
-    // Obtiene la posición X del personaje
+    // Obtiene la posicion X del personaje
     int getX() const
     {
         return x;
     }
 
-    // Obtiene la posición Y del personaje
+    // Obtiene la posicion Y del personaje
     int getY() const
     {
         return y;
@@ -108,12 +108,14 @@ public:
         return vidas;
     }
 
+    // Activa la invulnerabilidad del personaje por un tiempo determinado
     void activarInvulnerabilidad(int duracion)
     {
         invulnerable = true;
         tiempoInvulnerable = duracion;
     }
 
+    // Actualiza el estado de invulnerabilidad
     void actualizarInvulnerabilidad()
     {
         if (invulnerable && tiempoInvulnerable > 0)
@@ -131,14 +133,14 @@ public:
         return invulnerable;
     }
 
-    // Establece una nueva posición inicial para el personaje
+    // Establece una nueva posicion inicial para el personaje
     void setPosicionInicial(int nuevaX, int nuevaY)
     {
-        borrar(); // Borra el personaje de la posición actual
+        borrar(); // Borra el personaje de la posicion actual
         x = nuevaX;
         y = nuevaY;
-        validarLimites(); // Asegura que las nuevas coordenadas estén dentro de los límites
-        dibujar(); // Dibuja el personaje en la nueva posición
+        validarLimites(); // Asegura que las nuevas coordenadas esten dentro de los limites
+        dibujar(); // Dibuja el personaje en la nueva posicion
     }
 
     // Dibuja el personaje en la consola
@@ -150,8 +152,8 @@ public:
             {
                 gotoxy(x + j, y + i); // Posiciona el cursor
                 int colorValor = obtenerColor(personaje[i][j]);
-                color(colorValor); // Cambia el color usando la función de Funciones.h
-                std::cout << CUBO; // Dibuja el carácter CUBO
+                color(colorValor); // Cambia el color usando la funcion de Funciones.h
+                cout << CUBO; // Dibuja el caracter CUBO
             }
         }
         color(7); // Restablece el color a blanco
@@ -165,12 +167,12 @@ public:
             for (int j = 0; j < 4; ++j)
             {
                 gotoxy(x + j, y + i);
-                std::cout << vacio; // Borra con el carácter vacío
+                cout << vacio; // Borra con el caracter vacio
             }
         }
     }
 
-    // Mueve el personaje en la dirección indicada
+    // Mueve el personaje en la direccion indicada
     void mover(int dx, int dy)
     {
         borrar();
@@ -180,7 +182,7 @@ public:
         dibujar();
     }
 
-    // Maneja el movimiento del personaje según la tecla presionada
+    // Maneja el movimiento del personaje segun la tecla presionada
     void manejarMovimiento(char tecla)
     {
         if (tecla == UP)

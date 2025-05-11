@@ -1,7 +1,3 @@
-//
-// Created by c0d3r on 01/05/2025.
-//
-
 #ifndef FUNCIONES_H
 #define FUNCIONES_H
 
@@ -15,7 +11,6 @@
 #include <string> // Para usar la clase string
 
 using namespace std; // Para usar el espacio de nombres estondar
-using namespace System; // Para usar el espacio de nombres de C++/CLI
 
 // Oculta el cursor de la consola
 void ocultarCursor()

@@ -9,4 +9,6 @@ add_executable(trabajoParcial main.cpp
         Personaje.h
         Enemigo.h
         Mundo.h
-        Aliado.h)
+        Aliado.h
+        musica.cpp
+        Menu.h)
